@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Tandir qo'shish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi tandir yozuvi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="tandirchi_id" class="form-label">Tandirchi</label>
+                        <select class="form-select" id="tandirchi_id" name="tandirchi_id" required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tandir_raqami" class="form-label">Tandir raqami</label>
+                        <input type="number" class="form-control" id="tandir_raqami" name="tandir_raqami" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kirgan_non" class="form-label">Kirgan non (dona)</label>
+                        <input type="number" class="form-control" id="kirgan_non" name="kirgan_non" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="chiqqan_non" class="form-label">Chiqqan non (dona)</label>
+                        <input type="number" class="form-control" id="chiqqan_non" name="chiqqan_non" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_oven') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

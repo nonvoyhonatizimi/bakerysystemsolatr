@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Mijozlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Mijozlar boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Mijozlar ro'yxati</h5>
+        <a href="{{ url_for('customers.add_customer') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi mijoz
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nomi</th>
+                        <th>Turi</th>
+                        <th>Telefon</th>
+                        <th>Jami Qarz</th>
+                        <th>Status</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>{{ customer.id }}</td>
+                        <td>{{ customer.nomi }}</td>
+                        <td>
+                            {% if customer.turi == 'dokon' %}
+                                <span class="badge bg-info text-dark">Do'kon</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Shaxsiy</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ customer.telefon }}</td>
+                        <td class="{% if customer.jami_qarz > 0 %}text-danger fw-bold{% endif %}">
+                            {{ "{:,.0f}".format(customer.jami_qarz) }} so'm
+                        </td>
+                        <td>
+                            {% if customer.status == 'faol' %}
+                                <span class="badge bg-success">Faol</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Noaktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('customers.edit_customer', id=customer.id) }}" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Mijozlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

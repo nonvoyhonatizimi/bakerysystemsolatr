@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Non Yasash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi non yasash yozuvi{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="xamir_id" class="form-label">Xamir (Sana - ID)</label>
+                        <select class="form-select" id="xamir_id" name="xamir_id" required>
+                            {% for d in doughs %}
+                            <option value="{{ d.id }}">{{ d.sana }} - {{ d.id }} ({{ d.xamir_soni }} zuvala)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="xodim_id" class="form-label">Non yashovchi</label>
+                        <select class="form-select" id="xodim_id" name="xodim_id" required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chiqqan_non" class="form-label">Chiqqan non (dona)</label>
+                        <input type="number" class="form-control" id="chiqqan_non" name="chiqqan_non" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="brak_non" class="form-label">Brak non (dona)</label>
+                        <input type="number" class="form-control" id="brak_non" name="brak_non" value="0">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_bread') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Xamir - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xamir tayyorlash jurnali{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Xamirlar ro'yxati</h5>
+        <a href="{{ url_for('production.add_dough') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi xamir
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana</th>
+                        <th>Xamirchi</th>
+                        <th>Un (qop)</th>
+                        <th>Xamir soni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in doughs %}
+                    <tr>
+                        <td>{{ d.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ d.employee.ism }}</td>
+                        <td>{{ d.un_qopi }}</td>
+                        <td>{{ d.xamir_soni }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

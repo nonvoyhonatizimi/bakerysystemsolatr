@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Qarzlar hisoboti - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Mijozlar qarzi hisoboti{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Mijozlar qarzi bo'yicha hisobot
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if report_data %}
+        <div class="alert alert-warning">
+            <strong>Jami qarzli mijozlar:</strong> {{ report_data|length }} ta
+        </div>
+
+        {% for item in report_data %}
+        <div class="card mb-3 border-danger">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">
+                        {{ item.customer.nomi }}
+                        {% if item.has_telegram %}
+                        <span class="badge bg-info"><i class="fab fa-telegram"></i> Telegram</span>
+                        {% endif %}
+                    </h5>
+                    <small class="text-muted">
+                        {% if item.customer.telefon %}
+                        <i class="fas fa-phone"></i> {{ item.customer.telefon }}
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end">
+                        <h4 class="text-danger mb-0">{{ "{:,.0f}".format(item.customer.jami_qarz) }} so'm</h4>
+                        <small class="text-muted">Umumiy qarz</small>
+                    </div>
+                    {% if item.has_telegram %}
+                    <a href="{{ url_for('reports.send_debt_notification', customer_id=item.customer.id) }}" 
+                       class="btn btn-primary btn-sm"
+                       onclick="return confirm('{{ item.customer.nomi }} telegram guruhiga qarz eslatmasi yuborilsinmi?')">
+                        <i class="fab fa-telegram me-1"></i>Telegram
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                {% if item.breakdown %}
+                <h6 class="mb-3">Qarz tafsiloti:</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Non turi</th>
+                                <th class="text-end">Miqdor</th>
+                                <th class="text-end">Jami summa</th>
+                                <th class="text-end">To'landi</th>
+                                <th class="text-end">Qarz</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in item.breakdown %}
+                            <tr>
+                                <td>{{ sale.non_turi }}</td>
+                                <td class="text-end">{{ sale.total_miqdor }} dona</td>
+                                <td class="text-end">{{ "{:,.0f}".format(sale.total_summa) }} so'm</td>
+                                <td class="text-end text-success">{{ "{:,.0f}".format(sale.total_tolandi) }} so'm</td>
+                                <td class="text-end text-danger fw-bold">{{ "{:,.0f}".format(sale.total_qarz) }} so'm</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                <td colspan="4" class="text-end fw-bold">JAMI QARZ:</td>
+                                <td class="text-end text-danger fw-bold">
+                                    {{ "{:,.0f}".format(item.customer.jami_qarz) }} so'm
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">Qarz tafsiloti topilmadi</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="alert alert-success text-center">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h5>Ajoyib! Hech qanday qarz yo'q</h5>
+            <p class="mb-0">Barcha mijozlar o'z qarzlarini to'lab bo'lishgan</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

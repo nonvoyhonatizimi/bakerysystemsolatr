@@ -1,0 +1,161 @@
+import os
+from flask import Flask, render_template, redirect, url_for, flash, request
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from models import db, User, Log, Sale, BreadMaking, Customer, Employee
+from sqlalchemy import func
+from datetime import datetime
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nonvoyhona-secret-key-123')
+
+# Database configuration - supports both SQLite (local) and PostgreSQL (production)
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Fix Render's postgres:// to postgresql://
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Local development with SQLite
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nonvoyhona.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+def log_action(harakat, maumot=""):
+    log = Log(
+        foydalanuvchi=current_user.login if current_user.is_authenticated else "tizim",
+        harakat=harakat,
+        maumot=maumot
+    )
+    db.session.add(log)
+    db.session.commit()
+
+@app.route('/')
+@login_required
+def index():
+    # Redirect based on role/lavozim
+    if current_user.rol != 'admin' and current_user.employee:
+        lavozim = current_user.employee.lavozim
+        if lavozim == 'Xamirchi':
+            return redirect(url_for('production.list_dough'))
+        elif lavozim == 'Non yashovchi':
+            return redirect(url_for('production.list_bread'))
+        elif lavozim == 'Tandirchi':
+            return redirect(url_for('production.list_oven'))
+        elif lavozim == 'Haydovchi':
+            return redirect(url_for('sales.list_sales'))
+    
+    today = datetime.now().date()
+    
+    # Stats
+    daily_sales = db.session.query(func.sum(Sale.tolandi)).filter(Sale.sana == today).scalar() or 0
+    daily_production = db.session.query(func.sum(BreadMaking.sof_non)).filter(BreadMaking.sana == today).scalar() or 0
+    total_debt = db.session.query(func.sum(Customer.jami_qarz)).scalar() or 0
+    employee_count = Employee.query.filter_by(status='faol').count()
+    
+    recent_sales = Sale.query.order_by(Sale.id.desc()).limit(5).all()
+    recent_logs = Log.query.order_by(Log.id.desc()).limit(10).all()
+    
+    return render_template('dashboard.html', 
+                           daily_sales=daily_sales, 
+                           daily_production=daily_production,
+                           total_debt=total_debt,
+                           employee_count=employee_count,
+                           recent_sales=recent_sales,
+                           recent_logs=recent_logs)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(login=username).first()
+        
+        if user and user.parol == password: # In real app use hash
+            login_user(user)
+            log_action("Kirish", "Foydalanuvchi tizimga kirdi")
+            return redirect(url_for('index'))
+        else:
+            flash('Login yoki parol xato!')
+            
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    log_action("Chiqish", "Foydalanuvchi tizimdan chiqdi")
+    logout_user()
+    return redirect(url_for('login'))
+
+# Import and register blueprints for other modules
+from routes.employees import employees_bp
+from routes.customers import customers_bp
+from routes.production import production_bp
+from routes.sales import sales_bp
+from routes.finance import finance_bp
+from routes.reports import reports_bp
+from routes.bread_types import bread_types_bp
+app.register_blueprint(employees_bp)
+app.register_blueprint(customers_bp)
+app.register_blueprint(production_bp)
+app.register_blueprint(sales_bp)
+app.register_blueprint(finance_bp)
+app.register_blueprint(reports_bp)
+app.register_blueprint(bread_types_bp)
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        
+        # Create default admin if not exists
+        if not User.query.filter_by(login='admin').first():
+            admin = User(login='admin', parol='admin123', rol='admin', ism='Administrator')
+            db.session.add(admin)
+            db.session.commit()
+        
+        # Add all customers from Telegram groups if not exist
+        customers_to_add = [
+            "volidam", "doston", "sanjar patir", "noilaxon", "ziyo patir",
+            "turonboy", "shirin patir", "xojamboy", "azizbek patir", "akmal patir",
+            "shukurullo patir", "abduqahor patir", "milyon patir", "ramshit patir",
+            "xusanboy patir", "ishonch patir", "soxib patir", "sardor patir",
+            "lazzat patir", "paxlavon patir", "tanxo patir", "alisher patir",
+            "asil patir", "sarvar patir", "javohir patir", "kozim patir",
+            "klara opa", "rashid patir", "nodir patir", "rokiya patir",
+            "xayotjon", "shaxboz patir", "osiyo patir", "ozbegim",
+            "sadiya patir", "ifor patir", "diyor patir", "lazzat patir2",
+            "mamura qirchin", "dilafruz qirchin", "saroy patir", "abbosxon qirchin",
+            "nasiba qirchin", "abdulatif", "pungan baliq", "tomchi dangara", "benazir"
+        ]
+        
+        for customer_name in customers_to_add:
+            if not Customer.query.filter_by(nomi=customer_name).first():
+                new_customer = Customer(
+                    nomi=customer_name,
+                    turi='dokon',
+                    telefon='',
+                    manzil='',
+                    kredit_limit=0,
+                    jami_qarz=0
+                )
+                db.session.add(new_customer)
+        
+        db.session.commit()
+        print(f"✅ {len(customers_to_add)} ta mijoz bazaga qo'shildi")
+    
+    # Get port from environment variable (Render uses PORT)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

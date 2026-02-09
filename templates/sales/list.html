@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Sotuvlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Sotuvlar jurnali{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Sotuvlar ro'yxati</h5>
+        <a href="{{ url_for('sales.add_sale') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-cart-plus me-1"></i> Yangi sotuv
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana</th>
+                        <th>Mijoz</th>
+                        <th>Non turi</th>
+                        <th>Miqdor</th>
+                        <th>Narx</th>
+                        <th>Jami</th>
+                        <th>Tolandi</th>
+                        <th>Qarz</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ sale.customer.nomi }}</td>
+                        <td>{{ sale.non_turi }}</td>
+                        <td>{{ sale.miqdor }}</td>
+                        <td>{{ "{:,.0f}".format(sale.narx_dona) }}</td>
+                        <td class="fw-bold">{{ "{:,.0f}".format(sale.jami_summa) }}</td>
+                        <td class="text-success">{{ "{:,.0f}".format(sale.tolandi) }}</td>
+                        <td class="{% if sale.qoldiq_qarz > 0 %}text-danger fw-bold{% endif %}">
+                            {{ "{:,.0f}".format(sale.qoldiq_qarz) }}
+                        </td>
+                        <td>
+                            {% if sale.qoldiq_qarz > 0 %}
+                            <a href="{{ url_for('sales.pay_debt', sale_id=sale.id) }}" 
+                               class="btn btn-success btn-sm" 
+                               title="Qarz to'lash">
+                                <i class="fas fa-money-bill-wave"></i> To'lash
+                            </a>
+                            {% else %}
+                            <span class="badge bg-success">To'landi</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">Sotuvlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

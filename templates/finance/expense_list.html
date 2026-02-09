@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Xarajatlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xarajatlar jurnali{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Xarajatlar ro'yxati</h5>
+        <a href="{{ url_for('finance.add_expense') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi xarajat
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana</th>
+                        <th>Turi</th>
+                        <th>Summa</th>
+                        <th>Izoh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in expenses %}
+                    <tr>
+                        <td>{{ exp.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ exp.turi }}</td>
+                        <td class="fw-bold text-danger">{{ "{:,.0f}".format(exp.summa) }}</td>
+                        <td>{{ exp.izoh }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Xarajatlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

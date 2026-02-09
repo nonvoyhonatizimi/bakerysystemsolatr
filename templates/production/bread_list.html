@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Non Yasash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Non yasash jurnali{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Yasalgan nonlar ro'yxati</h5>
+        <a href="{{ url_for('production.add_bread') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi yozuv
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana</th>
+                        <th>Xodim</th>
+                        <th>Xamir ID</th>
+                        <th>Chiqqan non</th>
+                        <th>Brak</th>
+                        <th>Sof non</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in breads %}
+                    <tr>
+                        <td>{{ b.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ b.employee.ism }}</td>
+                        <td>{{ b.xamir_id }}</td>
+                        <td>{{ b.chiqqan_non }}</td>
+                        <td class="text-danger">{{ b.brak_non }}</td>
+                        <td class="fw-bold text-success">{{ b.sof_non }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

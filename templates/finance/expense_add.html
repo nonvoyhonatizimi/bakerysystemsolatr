@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Xarajat qo'shish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi xarajat qo'shish{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="turi" class="form-label">Xarajat turi</label>
+                        <select class="form-select" id="turi" name="turi" required>
+                            <option value="Un">Un</option>
+                            <option value="Yog'">Yog'</option>
+                            <option value="Tuz">Tuz</option>
+                            <option value="Xamirturush">Xamirturush</option>
+                            <option value="Gaz">Gaz</option>
+                            <option value="Elektr">Elektr</option>
+                            <option value="Oylik">Oylik</option>
+                            <option value="Boshqa">Boshqa</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="miqdor" class="form-label">Miqdor</label>
+                            <input type="number" step="0.01" class="form-control" id="miqdor" name="miqdor" required>
+                        </div>
+                        <div class="col">
+                            <label for="narx" class="form-label">Narx (so'm)</label>
+                            <input type="number" class="form-control" id="narx" name="narx" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="izoh" class="form-label">Izoh</label>
+                        <textarea class="form-control" id="izoh" name="izoh" rows="2"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('finance.list_expenses') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

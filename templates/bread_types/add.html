@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Yangi non turi - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi non turi qo'shish{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-bread-slice me-2"></i>Yangi non turi</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('bread_types.add_bread_type') }}">
+                    <div class="mb-4">
+                        <label for="nomi" class="form-label fw-bold">Non turining nomi</label>
+                        <input type="text" 
+                               class="form-control form-control-lg" 
+                               id="nomi" 
+                               name="nomi" 
+                               placeholder="Masalan: Obi non, Patir, Lo'chira..."
+                               required
+                               autofocus>
+                        <small class="text-muted">Non turining to'liq nomini kiriting</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus-circle me-2"></i>Qo'shish
+                        </button>
+                        <a href="{{ url_for('bread_types.list_bread_types') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Bekor qilish
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

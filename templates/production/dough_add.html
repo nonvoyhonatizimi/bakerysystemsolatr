@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Xamir qo'shish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi xamir tayyorlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="xodim_id" class="form-label">Xamirchi</label>
+                        <select class="form-select" id="xodim_id" name="xodim_id" required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="un_qop" class="form-label">Un miqdori (qop)</label>
+                        <input type="number" class="form-control" id="un_qop" name="un_qop" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="xamir_soni" class="form-label">Xamir soni (zuvala)</label>
+                        <input type="number" class="form-control" id="xamir_soni" name="xamir_soni" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_dough') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Xodim qo'shish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi xodim qo'shish{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="ism" class="form-label">F.I.SH</label>
+                        <input type="text" class="form-control" id="ism" name="ism" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lavozim" class="form-label">Lavozim</label>
+                        <select class="form-select" id="lavozim" name="lavozim" required>
+                            <option value="Xamirchi">Xamirchi</option>
+                            <option value="Non yashovchi">Non yashovchi</option>
+                            <option value="Tandirchi">Tandirchi</option>
+                            <option value="Haydovchi">Haydovchi</option>
+                            <option value="Operator">Operator</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefon" class="form-label">Telefon raqami</label>
+                        <input type="text" class="form-control" id="telefon" name="telefon" placeholder="+998901234567">
+                    </div>
+                    <div class="mb-4">
+                        <label for="oylik" class="form-label">Oylik maosh (so'm)</label>
+                        <input type="number" class="form-control" id="oylik" name="oylik" value="0">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('employees.list_employees') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

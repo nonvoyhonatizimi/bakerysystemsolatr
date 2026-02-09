@@ -1,0 +1,168 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required, current_user
+from models import db, Customer, Sale
+from sqlalchemy import func
+from decimal import Decimal
+import requests
+
+reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN = "8443497785:AAG6UAJIzZv8HCSTKHqmYUe6dYRlIxu-Yn4"
+
+# Customer to Telegram Group mapping
+CUSTOMER_GROUPS = {
+    "volidam": "-5191200114",
+    "doston": "-5220067597",
+    "sanjar patir": "-5119590423",
+    "noilaxon": "-5136672687",
+    "ziyo patir": "-5285503700",
+    "turonboy": "-5210259696",
+    "shirin patir": "-5189698467",
+    "xojamboy": "-5176607925",
+    "azizbek patir": "-5189297190",
+    "akmal patir": "-5237628560",
+    "shukurullo patir": "-5037602691",
+    "abduqahor patir": "-5032698055",
+    "milyon patir": "-5137038146",
+    "ramshit patir": "-5226227796",
+    "xusanboy patir": "-5282042883",
+    "ishonch patir": "-5223718902",
+    "soxib patir": "-4634207344",
+    "sardor patir": "-5045869711",
+    "lazzat patir": "-5191704673",
+    "paxlavon patir": "-5125695734",
+    "tanxo patir": "-5198380542",
+    "alisher patir": "-5128082473",
+    "asil patir": "-5051316785",
+    "sarvar patir": "-5179819694",
+    "javohir patir": "-5256511315",
+    "kozim patir": "-5213481068",
+    "klara opa": "-5052219586",
+    "rashid patir": "-5036846652",
+    "nodir patir": "-5283359473",
+    "rokiya patir": "-5247807018",
+    "xayotjon": "-5164251745",
+    "shaxboz patir": "-5284778568",
+    "osiyo patir": "-5156743302",
+    "ozbegim": "-5273159369",
+    "sadiya patir": "-5130791038",
+    "ifor patir": "-5158654742",
+    "diyor patir": "-5174351807",
+    "lazzat patir2": "-5238995053",
+    "mamura qirchin": "-5109056175",
+    "dilafruz qirchin": "-5022506055",
+    "saroy patir": "-5168265498",
+    "abbosxon qirchin": "-5216949062",
+    "nasiba qirchin": "-5235937864",
+    "abdulatif": "-5189577253",
+    "pungan baliq": "-5290608744",
+    "tomchi dangara": "-5124985853",
+    "benazir": "-5087901312"
+}
+
+@reports_bp.route('/debts')
+@login_required
+def customer_debts():
+    """Customer debts report with detailed breakdown"""
+    # Get all customers with debts
+    customers = Customer.query.filter(Customer.jami_qarz > 0).order_by(Customer.jami_qarz.desc()).all()
+    
+    # Build report data
+    report_data = []
+    for customer in customers:
+        # Get sales breakdown by bread type
+        sales_breakdown = db.session.query(
+            Sale.non_turi,
+            func.sum(Sale.miqdor).label('total_miqdor'),
+            func.sum(Sale.jami_summa).label('total_summa'),
+            func.sum(Sale.tolandi).label('total_tolandi'),
+            func.sum(Sale.qoldiq_qarz).label('total_qarz')
+        ).filter(
+            Sale.mijoz_id == customer.id,
+            Sale.qoldiq_qarz > 0
+        ).group_by(Sale.non_turi).all()
+        
+        # Check if customer has telegram group
+        has_telegram = False
+        customer_lower = customer.nomi.lower().strip()
+        for key in CUSTOMER_GROUPS.keys():
+            if key.lower() in customer_lower or customer_lower in key.lower():
+                has_telegram = True
+                break
+        
+        report_data.append({
+            'customer': customer,
+            'breakdown': sales_breakdown,
+            'has_telegram': has_telegram
+        })
+    
+    return render_template('reports/debts.html', report_data=report_data)
+
+@reports_bp.route('/send-debt-notification/<int:customer_id>')
+@login_required
+def send_debt_notification(customer_id):
+    """Send debt notification to customer's Telegram group"""
+    customer = Customer.query.get_or_404(customer_id)
+    
+    # Find matching chat ID
+    chat_id = None
+    customer_lower = customer.nomi.lower().strip()
+    
+    for key, value in CUSTOMER_GROUPS.items():
+        if key.lower() in customer_lower or customer_lower in key.lower():
+            chat_id = value
+            break
+    
+    if not chat_id:
+        flash(f'Telegram guruh topilmadi: {customer.nomi}')
+        return redirect(url_for('reports.customer_debts'))
+    
+    # Get sales breakdown
+    sales_breakdown = db.session.query(
+        Sale.non_turi,
+        func.sum(Sale.miqdor).label('total_miqdor'),
+        func.sum(Sale.jami_summa).label('total_summa'),
+        func.sum(Sale.tolandi).label('total_tolandi'),
+        func.sum(Sale.qoldiq_qarz).label('total_qarz')
+    ).filter(
+        Sale.mijoz_id == customer.id,
+        Sale.qoldiq_qarz > 0
+    ).group_by(Sale.non_turi).all()
+    
+    # Build message
+    message = f"""
+🔴 QARZ ESLATMASI
+
+📦 Mijoz: {customer.nomi}
+💰 Umumiy qarz: {float(customer.jami_qarz):,.0f} so'm
+
+📊 Qarz tafsiloti:
+"""
+    
+    for item in sales_breakdown:
+        message += f"\n🥖 {item.non_turi}: {item.total_miqdor} dona"
+        message += f"\n   Jami: {float(item.total_summa):,.0f} so'm"
+        message += f"\n   To'landi: {float(item.total_tolandi):,.0f} so'm"
+        message += f"\n   Qarz: {float(item.total_qarz):,.0f} so'm\n"
+    
+    message += f"\n⚠️ Iltimos, kassa qiling!"
+    
+    # Send to Telegram
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "HTML"
+        }
+        response = requests.post(url, json=payload, timeout=5)
+        
+        if response.status_code == 200:
+            flash(f'✅ Xabar yuborildi: {customer.nomi}')
+        else:
+            flash(f'❌ Xatolik: {response.status_code} - {response.text}')
+    except Exception as e:
+        flash(f'❌ Xatolik: {e}')
+    
+    return redirect(url_for('reports.customer_debts'))

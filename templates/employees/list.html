@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Xodimlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xodimlar boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Xodimlar ro'yxati</h5>
+        <a href="{{ url_for('employees.add_employee') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi xodim
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Ism</th>
+                        <th>Lavozim</th>
+                        <th>Login / Parol</th>
+                        <th>Telefon</th>
+                        <th>Oylik</th>
+                        <th>Status</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td>{{ emp.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ emp.ism }}&background=random" class="rounded-circle me-2" width="30" height="30">
+                                <span>{{ emp.ism }}</span>
+                            </div>
+                        </td>
+                        <td>{{ emp.lavozim }}</td>
+                        <td>
+                            {% if emp.user %}
+                                <code class="text-primary">{{ emp.user.login }}</code> / <code class="text-secondary">{{ emp.user.parol }}</code>
+                            {% else %}
+                                <span class="text-muted">Yo'q</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ emp.telefon }}</td>
+                        <td>{{ "{:,.0f}".format(emp.oylik) }} so'm</td>
+                        <td>
+                            {% if emp.status == 'faol' %}
+                                <span class="badge bg-success">Faol</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Noaktiv</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('employees.edit_employee', id=emp.id) }}" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Xodimlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

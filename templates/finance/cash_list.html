@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Kassa - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Kassa holati{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h6 class="card-title opacity-75">Joriy balans</h6>
+                <h2 class="fw-bold">{{ "{:,.0f}".format(balance) }} so'm</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Kassa amallari</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana</th>
+                        <th>Kirim</th>
+                        <th>Chiqim</th>
+                        <th>Balans</th>
+                        <th>Izoh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cash in cash_entries %}
+                    <tr>
+                        <td>{{ cash.sana.strftime('%d.%m.%Y') }}</td>
+                        <td class="text-success">{% if cash.kirim > 0 %}+{{ "{:,.0f}".format(cash.kirim) }}{% endif %}</td>
+                        <td class="text-danger">{% if cash.chiqim > 0 %}-{{ "{:,.0f}".format(cash.chiqim) }}{% endif %}</td>
+                        <td class="fw-bold">{{ "{:,.0f}".format(cash.balans) }}</td>
+                        <td>{{ cash.izoh }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Kassada harakatlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

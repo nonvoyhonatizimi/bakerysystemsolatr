@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nonvoyhona Tizimi{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #34495E;
+            --accent-color: #1ABC9C;
+        }
+        body {
+            background-color: #F8F9FA;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: var(--secondary-color);
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-accent:hover {
+            background-color: #16A085;
+            color: white;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            {% if current_user.is_authenticated %}
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                <div class="text-center mb-4">
+                    <h4 class="fw-bold">NONVOYHONA</h4>
+                    <small class="text-muted">v3.0 Professional</small>
+                </div>
+                <ul class="nav flex-column">
+                    {% if current_user.rol == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Bosh sahifa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'employees' in request.endpoint %}active{% endif %}" href="{{ url_for('employees.list_employees') }}">
+                            <i class="fas fa-users"></i> Xodimlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'customers' in request.endpoint %}active{% endif %}" href="{{ url_for('customers.list_customers') }}">
+                            <i class="fas fa-user-tie"></i> Mijozlar
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <hr class="text-white-50">
+                    
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Xamirchi', 'Non yashovchi', 'Operator']) %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'production' in request.endpoint and 'oven' not in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_dough') }}">
+                            <i class="fas fa-bread-slice"></i> Xamir & Yasash
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Tandirchi', 'Operator']) %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'production.list_oven' in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_oven') }}">
+                            <i class="fas fa-fire"></i> Tandir
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Haydovchi', 'Operator']) %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'sales' in request.endpoint %}active{% endif %}" href="{{ url_for('sales.list_sales') }}">
+                            <i class="fas fa-shopping-cart"></i> Sotuvlar
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <hr class="text-white-50">
+                    
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim == 'Operator') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'finance.list_expenses' in request.endpoint %}active{% endif %}" href="{{ url_for('finance.list_expenses') }}">
+                            <i class="fas fa-wallet"></i> Xarajatlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'finance.list_cash' in request.endpoint %}active{% endif %}" href="{{ url_for('finance.list_cash') }}">
+                            <i class="fas fa-cash-register"></i> Kassa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}" href="{{ url_for('reports.customer_debts') }}">
+                            <i class="fas fa-chart-line"></i> Hisobotlar
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <hr class="text-white-50">
+                    
+                    {% if current_user.rol == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'bread_types' in request.endpoint %}active{% endif %}" href="{{ url_for('bread_types.list_bread_types') }}">
+                            <i class="fas fa-bread-slice"></i> Non turlari
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="mt-auto p-3">
+                    <a href="{{ url_for('logout') }}" class="nav-link text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Chiqish
+                    </a>
+                </div>
+            </nav>
+            {% endif %}
+
+            <!-- Main Content -->
+            <main class="{% if current_user.is_authenticated %}col-md-9 ms-sm-auto col-lg-10{% else %}col-12{% endif %} px-md-4">
+                {% if current_user.is_authenticated %}
+                <nav class="navbar navbar-expand-lg mb-4 mt-2 rounded">
+                    <div class="container-fluid">
+                        <span class="navbar-brand mb-0 h1 text-muted">{% block header_title %}Bosh sahifa{% endblock %}</span>
+                        <div class="d-flex align-items-center">
+                            <span class="me-3">{{ current_user.ism }} ({{ current_user.rol }})</span>
+                            <div class="dropdown">
+                                <img src="https://ui-avatars.com/api/?name={{ current_user.ism }}&background=random" class="rounded-circle" width="35" height="35" alt="User">
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                {% endif %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show small" role="alert">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

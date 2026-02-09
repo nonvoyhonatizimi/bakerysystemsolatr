@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Sotuv qo'shish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Yangi sotuv qo'shish{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="mijoz_id" class="form-label">Mijoz</label>
+                        <select class="form-select" id="mijoz_id" name="mijoz_id" required>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}">{{ customer.nomi }} (Qarz: {{ "{:,.0f}".format(customer.jami_qarz) }} so'm)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="non_turi" class="form-label">Non turi</label>
+                        <select class="form-select" id="non_turi" name="non_turi" required>
+                            {% for bt in bread_types %}
+                            <option value="{{ bt.nomi }}">{{ bt.nomi }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="miqdor" class="form-label">Miqdor (dona)</label>
+                            <input type="number" class="form-control" id="miqdor" name="miqdor" required>
+                        </div>
+                        <div class="col">
+                            <label for="narx" class="form-label">Narx (so'm)</label>
+                            <input type="number" class="form-control" id="narx" name="narx" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="tolandi" class="form-label">To'landi (so'm)</label>
+                        <input type="number" class="form-control" id="tolandi" name="tolandi" value="0" min="0">
+                        <small class="text-muted">0 bo'lsa to'liq qarz hisoblanadi</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Sotuvni yakunlash</button>
+                        <a href="{{ url_for('sales.list_sales') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

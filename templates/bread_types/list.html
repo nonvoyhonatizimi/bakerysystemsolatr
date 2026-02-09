@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Non turlari - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Non turlari boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-bread-slice me-2"></i>Mavjud non turlari
+        </h5>
+        <a href="{{ url_for('bread_types.add_bread_type') }}" class="btn btn-success btn-sm">
+            <i class="fas fa-plus me-1"></i>Yangi non turi
+        </a>
+    </div>
+    <div class="card-body">
+        {% if bread_types %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Non turi</th>
+                        <th>Qo'shilgan sana</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bt in bread_types %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td class="fw-bold">{{ bt.nomi }}</td>
+                        <td>{{ bt.created_at.strftime('%d.%m.%Y') if bt.created_at else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('bread_types.delete_bread_type', id=bt.id) }}" 
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('{{ bt.nomi }} ni o\'chirishni xohlaysizmi?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <h5>Hali non turlari qo'shilmagan</h5>
+            <p class="mb-3">Yangi non turi qo'shish uchun tugmani bosing</p>
+            <a href="{{ url_for('bread_types.add_bread_type') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Yangi non turi qo'shish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Xodimni tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xodim ma'lumotlarini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="ism" class="form-label">F.I.SH</label>
+                        <input type="text" class="form-control" id="ism" name="ism" value="{{ employee.ism }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lavozim" class="form-label">Lavozim</label>
+                        <select class="form-select" id="lavozim" name="lavozim" required>
+                            <option value="Xamirchi" {% if employee.lavozim == 'Xamirchi' %}selected{% endif %}>Xamirchi</option>
+                            <option value="Non yashovchi" {% if employee.lavozim == 'Non yashovchi' %}selected{% endif %}>Non yashovchi</option>
+                            <option value="Tandirchi" {% if employee.lavozim == 'Tandirchi' %}selected{% endif %}>Tandirchi</option>
+                            <option value="Haydovchi" {% if employee.lavozim == 'Haydovchi' %}selected{% endif %}>Haydovchi</option>
+                            <option value="Operator" {% if employee.lavozim == 'Operator' %}selected{% endif %}>Operator</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefon" class="form-label">Telefon raqami</label>
+                        <input type="text" class="form-control" id="telefon" name="telefon" value="{{ employee.telefon }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="oylik" class="form-label">Oylik maosh (so'm)</label>
+                        <input type="number" class="form-control" id="oylik" name="oylik" value="{{ employee.oylik_maosh }}">
+                    </div>
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="faol" {% if employee.status == 'faol' %}selected{% endif %}>Faol</option>
+                            <option value="noaktiv" {% if employee.status == 'noaktiv' %}selected{% endif %}>Noaktiv</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Yangilash</button>
+                        <a href="{{ url_for('employees.list_employees') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

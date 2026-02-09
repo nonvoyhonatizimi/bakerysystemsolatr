@@ -1,0 +1,54 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required
+from models import db, Customer
+from datetime import datetime
+
+customers_bp = Blueprint('customers', __name__, url_prefix='/customers')
+
+@customers_bp.route('/')
+@login_required
+def list_customers():
+    customers = Customer.query.all()
+    return render_template('customers/list.html', customers=customers)
+
+@customers_bp.route('/add', methods=['GET', 'POST'])
+@login_required
+def add_customer():
+    if request.method == 'POST':
+        nomi = request.form.get('nomi')
+        telefon = request.form.get('telefon')
+        manzil = request.form.get('manzil')
+        turi = request.form.get('turi')
+        limit = request.form.get('limit', 0)
+        
+        new_customer = Customer(
+            nomi=nomi,
+            telefon=telefon,
+            manzil=manzil,
+            turi=turi,
+            kredit_limit=limit
+        )
+        db.session.add(new_customer)
+        db.session.commit()
+        flash('Mijoz muvaffaqiyatli qo\'shildi', 'success')
+        return redirect(url_for('customers.list_customers'))
+    
+    return render_template('customers/add.html')
+
+@customers_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_customer(id):
+    customer = Customer.query.get_or_404(id)
+    if request.method == 'POST':
+        customer.nomi = request.form.get('nomi')
+        customer.telefon = request.form.get('telefon')
+        customer.manzil = request.form.get('manzil')
+        customer.turi = request.form.get('turi')
+        customer.kredit_limit = request.form.get('limit', 0)
+        customer.status = request.form.get('status', 'faol')
+        
+        db.session.commit()
+        flash('Mijoz ma\'lumotlari yangilandi', 'success')
+        return redirect(url_for('customers.list_customers'))
+    
+    return render_template('customers/edit.html', customer=customer)

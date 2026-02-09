@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Mijozni tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Mijoz ma'lumotlarini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nomi" class="form-label">Mijoz nomi (F.I.SH yoki Do'kon)</label>
+                        <input type="text" class="form-control" id="nomi" name="nomi" value="{{ customer.nomi }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="turi" class="form-label">Turi</label>
+                        <select class="form-select" id="turi" name="turi" required>
+                            <option value="dokon" {% if customer.turi == 'dokon' %}selected{% endif %}>Do'kon</option>
+                            <option value="shaxsiy" {% if customer.turi == 'shaxsiy' %}selected{% endif %}>Shaxsiy</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefon" class="form-label">Telefon raqami</label>
+                        <input type="text" class="form-control" id="telefon" name="telefon" value="{{ customer.telefon }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="manzil" class="form-label">Manzil</label>
+                        <textarea class="form-control" id="manzil" name="manzil" rows="2">{{ customer.manzil }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="limit" class="form-label">Kredit limit (so'm)</label>
+                        <input type="number" class="form-control" id="limit" name="limit" value="{{ customer.kredit_limit }}">
+                    </div>
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="faol" {% if customer.status == 'faol' %}selected{% endif %}>Faol</option>
+                            <option value="noaktiv" {% if customer.status == 'noaktiv' %}selected{% endif %}>Noaktiv</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Yangilash</button>
+                        <a href="{{ url_for('customers.list_customers') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
