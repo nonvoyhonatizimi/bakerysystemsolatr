@@ -6,6 +6,11 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
+        <!-- Un qoldigi ko'rsatkichi -->
+        <div class="alert alert-info mb-3">
+            <h5 class="mb-0">Mavjud un qoldig'i: <strong>{{ mavjud_un }} qop</strong></h5>
+        </div>
+        
         <div class="card">
             <div class="card-body p-4">
                 <form method="POST">
@@ -19,14 +24,15 @@
                     </div>
                     <div class="mb-3">
                         <label for="un_qop" class="form-label">Un miqdori (qop)</label>
-                        <input type="number" class="form-control" id="un_qop" name="un_qop" required>
+                        <input type="number" class="form-control" id="un_qop" name="un_qop" required max="{{ mavjud_un }}" min="1">
+                        <small class="text-muted">Maksimum: {{ mavjud_un }} qop</small>
                     </div>
                     <div class="mb-4">
                         <label for="xamir_soni" class="form-label">Xamir soni (zuvala)</label>
                         <input type="number" class="form-control" id="xamir_soni" name="xamir_soni" required>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <button type="submit" class="btn btn-primary" {% if mavjud_un <= 0 %}disabled{% endif %}>Saqlash</button>
                         <a href="{{ url_for('production.list_dough') }}" class="btn btn-light">Bekor qilish</a>
                     </div>
                 </form>

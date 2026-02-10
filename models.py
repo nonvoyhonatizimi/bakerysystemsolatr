@@ -121,3 +121,13 @@ class Log(db.Model):
     foydalanuvchi = db.Column(db.String(50))
     harakat = db.Column(db.String(100))
     maumot = db.Column(db.String(200))
+
+class UnQoldiq(db.Model):
+    __tablename__ = 'un_qoldiq'
+    id = db.Column(db.Integer, primary_key=True)
+    sana = db.Column(db.DateTime, default=datetime.utcnow)
+    qop_soni = db.Column(db.Integer, default=0)
+    izoh = db.Column(db.String(200))
+    xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
+    
+    employee = db.relationship('Employee', backref='un_qoldiq_records')

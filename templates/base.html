@@ -95,6 +95,14 @@
                     </li>
                     {% endif %}
 
+                    {% if current_user.rol == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'un_qoldiq' in request.endpoint %}active{% endif %}" href="{{ url_for('production.un_qoldiq_list') }}">
+                            <i class="fas fa-wheat-awn"></i> Un Qoldig'i
+                        </a>
+                    </li>
+                    {% endif %}
+
                     {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Tandirchi', 'Operator']) %}
                     <li class="nav-item">
                         <a class="nav-link {% if 'production.list_oven' in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_oven') }}">

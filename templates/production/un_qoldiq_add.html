@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Un Qo'shish</h2>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="qop_soni" class="form-label">Qop Soni</label>
+            <input type="number" class="form-control" id="qop_soni" name="qop_soni" required min="1">
+        </div>
+        
+        <div class="mb-3">
+            <label for="izoh" class="form-label">Izoh (ixtiyoriy)</label>
+            <textarea class="form-control" id="izoh" name="izoh" rows="2" placeholder="Masalan: 300 qop un keldi - Nonvoyhona uchun"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Saqlash</button>
+        <a href="{{ url_for('production.un_qoldiq_list') }}" class="btn btn-secondary">Bekor qilish</a>
+    </form>
+</div>
+{% endblock %}

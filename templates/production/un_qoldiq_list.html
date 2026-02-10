@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Un Qoldigini Boshqarish</h2>
+    
+    <!-- Un qoldigi statistikasi -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Jami Kelgan Un</h5>
+                    <h3>{{ un_qoldiq }} qop</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Ishlatilgan Un</h5>
+                    <h3>{{ ishlatilgan_un }} qop</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Mavjud Un Qoldig'i</h5>
+                    <h3>{{ mavjud_un }} qop</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('production.add_un_qoldiq') }}" class="btn btn-primary mb-3">+ Un Qo'shish</a>
+    <a href="{{ url_for('production.add_dough') }}" class="btn btn-success mb-3">Xamir Qilish</a>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sana</th>
+                <th>Qop Soni</th>
+                <th>Izoh</th>
+                <th>Xodim</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.sana.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ record.qop_soni }}</td>
+                <td>{{ record.izoh }}</td>
+                <td>{{ record.employee.ism if record.employee else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
