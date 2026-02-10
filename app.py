@@ -108,6 +108,7 @@ from routes.sales import sales_bp
 from routes.finance import finance_bp
 from routes.reports import reports_bp
 from routes.bread_types import bread_types_bp
+from routes.payroll import payroll_bp
 app.register_blueprint(employees_bp)
 app.register_blueprint(customers_bp)
 app.register_blueprint(production_bp)
@@ -115,6 +116,7 @@ app.register_blueprint(sales_bp)
 app.register_blueprint(finance_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(bread_types_bp)
+app.register_blueprint(payroll_bp)
 
 # Create database tables on startup
 def init_db():

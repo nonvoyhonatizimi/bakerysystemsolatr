@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ employee.ism }} - Oylik Hisobot</h2>
+    <p class="text-muted">Lavozim: {{ employee.lavozim }} | Stavka: {{ "{:,.0f}".format(employee.ish_haqqi_stavka) if employee.ish_haqqi_stavka else 0 }} so'm</p>
+    
+    <!-- Oy tanlash -->
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="yil" class="form-label">Yil</label>
+                <select class="form-select" id="yil" name="yil">
+                    <option value="2025" {% if yil == 2025 %}selected{% endif %}>2025</option>
+                    <option value="2026" {% if yil == 2026 %}selected{% endif %}>2026</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="oy" class="form-label">Oy</label>
+                <select class="form-select" id="oy" name="oy">
+                    {% for o in range(1, 13) %}
+                    <option value="{{ o }}" {% if oy == o %}selected{% endif %}>{{ o }}-oy</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Ko'rish</button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Jami -->
+    <div class="alert alert-success mb-4">
+        <h4 class="mb-0">Jami Ish Haqqi: {{ "{:,.0f}".format(jami_ish_haqqi) }} so'm</h4>
+    </div>
+    
+    <!-- Kunlik ish jadvali -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sana</th>
+                <th>Ish Soni</th>
+                <th>Ish Haqqi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for kun in kunlik_ish %}
+            <tr>
+                <td>{{ kun.sana }}</td>
+                <td>{{ kun.ish_soni }}</td>
+                <td>{{ "{:,.0f}".format(kun.ish_haqqi) }} so'm</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if kunlik_ish|length == 0 %}
+    <div class="alert alert-info">
+        Bu oy uchun ish ma'lumotlari yo'q
+    </div>
+    {% endif %}
+    
+    <a href="{{ url_for('payroll.index') }}" class="btn btn-secondary">Orqaga</a>
+</div>
+{% endblock %}

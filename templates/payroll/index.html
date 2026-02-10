@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Kunlik Ish Haqqi Hisoboti</h2>
+    
+    <!-- Sana tanlash -->
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="sana" class="form-label">Sana</label>
+                <input type="date" class="form-control" id="sana" name="sana" value="{{ sana }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Ko'rish</button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Hisobot jadvali -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Xodim</th>
+                <th>Lavozim</th>
+                <th>Stavka (1 dona/qop)</th>
+                <th>Ish Soni</th>
+                <th>Jami Ish Haqqi</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ishchi in hisobot %}
+            <tr>
+                <td>{{ ishchi.ism }}</td>
+                <td>{{ ishchi.lavozim }}</td>
+                <td>{{ "{:,.0f}".format(ishchi.stavka) }} so'm</td>
+                <td>{{ ishchi.ish_soni }} {{ ishchi.birlik if ishchi.birlik else '' }}</td>
+                <td><strong>{{ "{:,.0f}".format(ishchi.jami_ish_haqqi) }} so'm</strong></td>
+                <td>
+                    <a href="{{ url_for('payroll.detail', employee_id=ishchi.id) }}" class="btn btn-sm btn-info">Batafsil</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if hisobot|length == 0 %}
+    <div class="alert alert-info">
+        Bu sana uchun ma'lumot yo'q
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

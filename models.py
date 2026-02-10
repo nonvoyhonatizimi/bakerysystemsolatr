@@ -26,6 +26,8 @@ class Employee(db.Model):
     oylik = db.Column(db.Numeric(10, 2), default=0)
     status = db.Column(db.String(20), default='faol')
     ish_boshlanish = db.Column(db.Date, default=datetime.utcnow)
+    # Kunlik ish haqqi stavkasi (bir dona/qop uchun)
+    ish_haqqi_stavka = db.Column(db.Numeric(10, 2), default=0)
 
 class Customer(db.Model):
     __tablename__ = 'mijozlar'

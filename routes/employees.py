@@ -24,12 +24,14 @@ def add_employee():
         lavozim = request.form.get('lavozim')
         telefon = request.form.get('telefon')
         oylik = request.form.get('oylik', 0)
+        ish_haqqi_stavka = request.form.get('ish_haqqi_stavka', 0)
         
         new_emp = Employee(
             ism=ism,
             lavozim=lavozim,
             telefon=telefon,
             oylik=oylik,
+            ish_haqqi_stavka=ish_haqqi_stavka,
             ish_boshlanish=datetime.now().date()
         )
         db.session.add(new_emp)
@@ -62,7 +64,8 @@ def edit_employee(id):
         emp.ism = request.form.get('ism')
         emp.lavozim = request.form.get('lavozim')
         emp.telefon = request.form.get('telefon')
-        emp.oylik_maosh = request.form.get('oylik', 0)
+        emp.oylik = request.form.get('oylik', 0)
+        emp.ish_haqqi_stavka = request.form.get('ish_haqqi_stavka', 0)
         emp.status = request.form.get('status', 'faol')
         
         db.session.commit()
