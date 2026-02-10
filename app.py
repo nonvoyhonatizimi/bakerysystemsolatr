@@ -122,8 +122,8 @@ def init_db():
         db.create_all()
         
         # Create default admin if not exists
-        if not User.query.filter_by(login='admin').first():
-            admin = User(login='admin', parol='admin123', rol='admin', ism='Administrator')
+        if not User.query.filter_by(login='rovshanbek').first():
+            admin = User(login='rovshanbek', parol='admin0257', rol='admin', ism='Rovshanbek')
             db.session.add(admin)
             db.session.commit()
         
@@ -165,8 +165,8 @@ if __name__ == '__main__':
         db.create_all()
         
         # Create default admin if not exists
-        if not User.query.filter_by(login='admin').first():
-            admin = User(login='admin', parol='admin123', rol='admin', ism='Administrator')
+        if not User.query.filter_by(login='rovshanbek').first():
+            admin = User(login='rovshanbek', parol='admin0257', rol='admin', ism='Rovshanbek')
             db.session.add(admin)
             db.session.commit()
         
