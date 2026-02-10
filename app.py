@@ -116,6 +116,50 @@ app.register_blueprint(finance_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(bread_types_bp)
 
+# Create database tables on startup
+def init_db():
+    with app.app_context():
+        db.create_all()
+        
+        # Create default admin if not exists
+        if not User.query.filter_by(login='admin').first():
+            admin = User(login='admin', parol='admin123', rol='admin', ism='Administrator')
+            db.session.add(admin)
+            db.session.commit()
+        
+        # Add all customers from Telegram groups if not exist
+        customers_to_add = [
+            "volidam", "doston", "sanjar patir", "noilaxon", "ziyo patir",
+            "turonboy", "shirin patir", "xojamboy", "azizbek patir", "akmal patir",
+            "shukurullo patir", "abduqahor patir", "milyon patir", "ramshit patir",
+            "xusanboy patir", "ishonch patir", "soxib patir", "sardor patir",
+            "lazzat patir", "paxlavon patir", "tanxo patir", "alisher patir",
+            "asil patir", "sarvar patir", "javohir patir", "kozim patir",
+            "klara opa", "rashid patir", "nodir patir", "rokiya patir",
+            "xayotjon", "shaxboz patir", "osiyo patir", "ozbegim",
+            "sadiya patir", "ifor patir", "diyor patir", "lazzat patir2",
+            "mamura qirchin", "dilafruz qirchin", "saroy patir", "abbosxon qirchin",
+            "nasiba qirchin", "abdulatif", "pungan baliq", "tomchi dangara", "benazir"
+        ]
+        
+        for customer_name in customers_to_add:
+            if not Customer.query.filter_by(nomi=customer_name).first():
+                new_customer = Customer(
+                    nomi=customer_name,
+                    turi='dokon',
+                    telefon='',
+                    manzil='',
+                    kredit_limit=0,
+                    jami_qarz=0
+                )
+                db.session.add(new_customer)
+        
+        db.session.commit()
+        print(f"✅ {len(customers_to_add)} ta mijoz bazaga qo'shildi")
+
+# Initialize database on startup
+init_db()
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
