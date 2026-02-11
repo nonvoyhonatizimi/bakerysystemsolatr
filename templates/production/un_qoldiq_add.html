@@ -6,6 +6,15 @@
     
     <form method="POST">
         <div class="mb-3">
+            <label for="un_turi" class="form-label">Un Turi</label>
+            <select class="form-select" id="un_turi" name="un_turi" required>
+                {% for turi in un_turlari %}
+                <option value="{{ turi.nomi }}">{{ turi.nomi }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
             <label for="qop_soni" class="form-label">Qop Soni</label>
             <input type="number" class="form-control" id="qop_soni" name="qop_soni" required min="1">
         </div>

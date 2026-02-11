@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Yangi Un Turi Qo'shish</h2>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="nomi" class="form-label">Un Turi Nomi</label>
+            <input type="text" class="form-control" id="nomi" name="nomi" required placeholder="Masalan: Birinchi nav un, Ikkinchi nav un, Qora un">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Saqlash</button>
+        <a href="{{ url_for('production.un_turlari_list') }}" class="btn btn-secondary">Bekor qilish</a>
+    </form>
+</div>
+{% endblock %}

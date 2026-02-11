@@ -8,7 +8,7 @@
     <div class="col-md-6">
         <!-- Un qoldigi ko'rsatkichi -->
         <div class="alert alert-info mb-3">
-            <h5 class="mb-0">Mavjud un qoldig'i: <strong>{{ mavjud_un }} qop</strong></h5>
+            <h5 class="mb-0">{{ tanlangan_un_turi }} qoldig'i: <strong>{{ mavjud_un }} qop</strong></h5>
         </div>
         
         <div class="card">
@@ -19,6 +19,14 @@
                         <select class="form-select" id="xodim_id" name="xodim_id" required>
                             {% for emp in employees %}
                             <option value="{{ emp.id }}">{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="un_turi" class="form-label">Un turi</label>
+                        <select class="form-select" id="un_turi" name="un_turi" required onchange="this.form.submit()">
+                            {% for turi in un_turlari %}
+                            <option value="{{ turi.nomi }}" {% if turi.nomi == tanlangan_un_turi %}selected{% endif %}>{{ turi.nomi }}</option>
                             {% endfor %}
                         </select>
                     </div>

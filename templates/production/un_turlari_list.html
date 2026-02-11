@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Un Turlari</h2>
+    
+    <a href="{{ url_for('production.add_un_turi') }}" class="btn btn-primary mb-3">+ Yangi Un Turi</a>
+    <a href="{{ url_for('production.un_qoldiq_list') }}" class="btn btn-secondary mb-3">Orqaga</a>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Un Turi Nomi</th>
+                <th>Qo'shilgan Sana</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turi in turlar %}
+            <tr>
+                <td>{{ turi.id }}</td>
+                <td>{{ turi.nomi }}</td>
+                <td>{{ turi.created_at.strftime('%d.%m.%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

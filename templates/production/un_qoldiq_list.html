@@ -4,41 +4,36 @@
 <div class="container mt-4">
     <h2>Un Qoldigini Boshqarish</h2>
     
-    <!-- Un qoldigi statistikasi -->
+    <!-- Un turlari bo'yicha statistika -->
+    <h4 class="mb-3">Un Turlari Bo'yicha Qoldiq</h4>
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
+        {% for stat in un_statistika %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{{ stat.turi }}</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Jami Kelgan Un</h5>
-                    <h3>{{ un_qoldiq }} qop</h3>
+                    <p class="mb-1">Kelgan: <strong>{{ stat.kelgan }} qop</strong></p>
+                    <p class="mb-1">Ishlatilgan: <strong>{{ stat.ishlatilgan }} qop</strong></p>
+                    <hr>
+                    <p class="mb-0">Mavjud: <strong class="text-success">{{ stat.mavjud }} qop</strong></p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h5 class="card-title">Ishlatilgan Un</h5>
-                    <h3>{{ ishlatilgan_un }} qop</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Mavjud Un Qoldig'i</h5>
-                    <h3>{{ mavjud_un }} qop</h3>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
     
     <a href="{{ url_for('production.add_un_qoldiq') }}" class="btn btn-primary mb-3">+ Un Qo'shish</a>
+    <a href="{{ url_for('production.un_turlari_list') }}" class="btn btn-info mb-3">Un Turlari</a>
     <a href="{{ url_for('production.add_dough') }}" class="btn btn-success mb-3">Xamir Qilish</a>
     
+    <h4 class="mt-4">Kelgan Unlar Tarixi</h4>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Sana</th>
+                <th>Un Turi</th>
                 <th>Qop Soni</th>
                 <th>Izoh</th>
                 <th>Xodim</th>
@@ -48,6 +43,7 @@
             {% for record in records %}
             <tr>
                 <td>{{ record.sana.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ record.un_turi }}</td>
                 <td>{{ record.qop_soni }}</td>
                 <td>{{ record.izoh }}</td>
                 <td>{{ record.employee.ism if record.employee else '-' }}</td>

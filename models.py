@@ -50,6 +50,7 @@ class Dough(db.Model):
     __tablename__ = 'xamir'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    un_turi = db.Column(db.String(100), default='Oddiy un')  # Ishlatilgan un turi
     un_qopi = db.Column(db.Integer, default=0)
     xamir_soni = db.Column(db.Integer, default=0)
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
@@ -128,8 +129,15 @@ class UnQoldiq(db.Model):
     __tablename__ = 'un_qoldiq'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.DateTime, default=datetime.utcnow)
+    un_turi = db.Column(db.String(100), default='Oddiy un')  # Un turi
     qop_soni = db.Column(db.Integer, default=0)
     izoh = db.Column(db.String(200))
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
     
     employee = db.relationship('Employee', backref='un_qoldiq_records')
+
+class UnTuri(db.Model):
+    __tablename__ = 'un_turlari'
+    id = db.Column(db.Integer, primary_key=True)
+    nomi = db.Column(db.String(100), nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
