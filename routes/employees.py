@@ -73,3 +73,18 @@ def edit_employee(id):
         return redirect(url_for('employees.list_employees'))
     
     return render_template('employees/edit.html', employee=emp)
+
+@employees_bp.route('/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_employee(id):
+    emp = Employee.query.get_or_404(id)
+    
+    # Xodimga bog'liq user ni o'chirish
+    user = User.query.filter_by(employee_id=emp.id).first()
+    if user:
+        db.session.delete(user)
+    
+    db.session.delete(emp)
+    db.session.commit()
+    flash(f'{emp.ism} o\'chirildi', 'success')
+    return redirect(url_for('employees.list_employees'))
