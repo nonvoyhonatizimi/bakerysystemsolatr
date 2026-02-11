@@ -161,19 +161,34 @@ def pay_debt(sale_id):
         db.session.add(new_cash)
         db.session.commit()
         
-        # Eski qarz to'langanida bildirishnoma
-        if kun_farqi >= 1:
-            flash(f'✅ {float(payment):,.0f} so\'m qarz to\'landi! Eslatma: Bu {kun_farqi} kun oldin ({sotuv_kuni.strftime("%d.%m.%Y")}) bergan nonning puli edi.', 'info')
-        else:
-            flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
+        # Admin ga Telegram habar yuborish
+        try:
+            admin_message = f"""
+💰 QARZ TO'LANDI!
+
+👤 Mijoz: {customer.nomi if customer else 'Nomalum'}
+📅 Sotuv sanasi: {sotuv_kuni.strftime('%d.%m.%Y')}
+💵 To'lov miqdori: {float(payment):,.0f} so'm
+📊 Qoldiq qarz: {float(sale.qoldiq_qarz):,.0f} so'm
+👤 To'lov qildi: {current_user.ism}
+⏰ Sana: {bugun.strftime('%d.%m.%Y')}
+"""
+            # Admin ga yuborish (sizning Telegram ID yoki guruh ID)
+            admin_chat_id = "-5191200114"  # O'zingizning admin guruh ID
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+            payload = {
+                "chat_id": admin_chat_id,
+                "text": admin_message,
+                "parse_mode": "HTML"
+            }
+            requests.post(url, json=payload, timeout=5)
+        except Exception as e:
+            print(f"Telegram xatolik: {e}")
+        
+        flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
         return redirect(url_for('sales.list_sales'))
     
-    # GET so'rovda eski qarz haqida ogohlantirish
-    ogohlantirish = None
-    if kun_farqi >= 1:
-        ogohlantirish = f"⚠️ Eslatma: Bu {kun_farqi} kun oldin ({sotuv_kuni.strftime('%d.%m.%Y')}) bergan nonning qarzi!"
-    
-    return render_template('sales/pay_debt.html', sale=sale, customer=customer, ogohlantirish=ogohlantirish, kun_farqi=kun_farqi)
+    return render_template('sales/pay_debt.html', sale=sale)
 
 @sales_bp.route('/add', methods=['GET', 'POST'])
 @login_required
