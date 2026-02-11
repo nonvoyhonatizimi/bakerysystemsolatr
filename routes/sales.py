@@ -123,6 +123,12 @@ def pay_debt(sale_id):
     from decimal import Decimal
     
     sale = Sale.query.get_or_404(sale_id)
+    customer = Customer.query.get(sale.mijoz_id)
+    
+    # Eski qarzni tekshirish
+    bugun = datetime.now().date()
+    sotuv_kuni = sale.sana
+    kun_farqi = (bugun - sotuv_kuni).days
     
     if request.method == 'POST':
         payment = Decimal(str(request.form.get('payment', 0)))
@@ -140,7 +146,6 @@ def pay_debt(sale_id):
         sale.qoldiq_qarz -= payment
         
         # Update customer debt
-        customer = Customer.query.get(sale.mijoz_id)
         if customer:
             customer.jami_qarz -= payment
         
@@ -148,18 +153,27 @@ def pay_debt(sale_id):
         last_cash = Cash.query.order_by(Cash.id.desc()).first()
         current_balance = last_cash.balans if last_cash else Decimal('0')
         new_cash = Cash(
-            sana=datetime.now().date(),
+            sana=bugun,
             kirim=payment,
             balans=current_balance + payment,
-            izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Noma\'lum'}"
+            izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'}"
         )
         db.session.add(new_cash)
         db.session.commit()
         
-        flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
+        # Eski qarz to'langanida bildirishnoma
+        if kun_farqi >= 1:
+            flash(f'✅ {float(payment):,.0f} so\'m qarz to\'landi! Eslatma: Bu {kun_farqi} kun oldin ({sotuv_kuni.strftime("%d.%m.%Y")}) bergan nonning puli edi.', 'info')
+        else:
+            flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
         return redirect(url_for('sales.list_sales'))
     
-    return render_template('sales/pay_debt.html', sale=sale)
+    # GET so'rovda eski qarz haqida ogohlantirish
+    ogohlantirish = None
+    if kun_farqi >= 1:
+        ogohlantirish = f"⚠️ Eslatma: Bu {kun_farqi} kun oldin ({sotuv_kuni.strftime('%d.%m.%Y')}) bergan nonning qarzi!"
+    
+    return render_template('sales/pay_debt.html', sale=sale, customer=customer, ogohlantirish=ogohlantirish, kun_farqi=kun_farqi)
 
 @sales_bp.route('/add', methods=['GET', 'POST'])
 @login_required
