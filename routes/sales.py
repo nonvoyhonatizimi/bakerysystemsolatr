@@ -123,12 +123,6 @@ def pay_debt(sale_id):
     from decimal import Decimal
     
     sale = Sale.query.get_or_404(sale_id)
-    customer = Customer.query.get(sale.mijoz_id)
-    
-    # Eski qarzni tekshirish
-    bugun = datetime.now().date()
-    sotuv_kuni = sale.sana
-    kun_farqi = (bugun - sotuv_kuni).days
     
     if request.method == 'POST':
         payment = Decimal(str(request.form.get('payment', 0)))
@@ -146,6 +140,7 @@ def pay_debt(sale_id):
         sale.qoldiq_qarz -= payment
         
         # Update customer debt
+        customer = Customer.query.get(sale.mijoz_id)
         if customer:
             customer.jami_qarz -= payment
         
@@ -153,37 +148,13 @@ def pay_debt(sale_id):
         last_cash = Cash.query.order_by(Cash.id.desc()).first()
         current_balance = last_cash.balans if last_cash else Decimal('0')
         new_cash = Cash(
-            sana=bugun,
+            sana=datetime.now().date(),
             kirim=payment,
             balans=current_balance + payment,
             izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'}"
         )
         db.session.add(new_cash)
         db.session.commit()
-        
-        # Admin ga Telegram habar yuborish
-        try:
-            admin_message = f"""
-💰 QARZ TO'LANDI!
-
-👤 Mijoz: {customer.nomi if customer else 'Nomalum'}
-📅 Sotuv sanasi: {sotuv_kuni.strftime('%d.%m.%Y')}
-💵 To'lov miqdori: {float(payment):,.0f} so'm
-📊 Qoldiq qarz: {float(sale.qoldiq_qarz):,.0f} so'm
-👤 To'lov qildi: {current_user.ism}
-⏰ Sana: {bugun.strftime('%d.%m.%Y')}
-"""
-            # Admin ga yuborish (sizning Telegram ID yoki guruh ID)
-            admin_chat_id = "-5191200114"  # O'zingizning admin guruh ID
-            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-            payload = {
-                "chat_id": admin_chat_id,
-                "text": admin_message,
-                "parse_mode": "HTML"
-            }
-            requests.post(url, json=payload, timeout=5)
-        except Exception as e:
-            print(f"Telegram xatolik: {e}")
         
         flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
         return redirect(url_for('sales.list_sales'))
