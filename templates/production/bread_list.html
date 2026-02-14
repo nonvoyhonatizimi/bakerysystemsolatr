@@ -18,10 +18,12 @@
                     <tr>
                         <th>Sana</th>
                         <th>Xodim</th>
-                        <th>Xamir ID</th>
+                        <th>Non turi</th>
+                        <th>Hamir (kg)</th>
                         <th>Chiqqan non</th>
                         <th>Brak</th>
                         <th>Sof non</th>
+                        <th>Ish haqqi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,14 +31,16 @@
                     <tr>
                         <td>{{ b.sana.strftime('%d.%m.%Y') }}</td>
                         <td>{{ b.employee.ism }}</td>
-                        <td>{{ b.xamir_id }}</td>
+                        <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
+                        <td>{{ b.hamir_kg }}</td>
                         <td>{{ b.chiqqan_non }}</td>
-                        <td class="text-danger">{{ b.brak_non }}</td>
+                        <td class="text-danger">{{ b.brak }}</td>
                         <td class="fw-bold text-success">{{ b.sof_non }}</td>
+                        <td>{{ b.hamir_kg * 1500 }} so'm</td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="8" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>
