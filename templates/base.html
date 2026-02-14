@@ -87,10 +87,10 @@
 
                     <hr class="text-white-50">
                     
-                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Xamirchi', 'Non yashovchi', 'Operator']) %}
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Xamirchi', 'Operator']) %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'production' in request.endpoint and 'oven' not in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_dough') }}">
-                            <i class="fas fa-bread-slice"></i> Xamir & Yasash
+                        <a class="nav-link {% if 'production.list_dough' in request.endpoint or 'production.add_dough' in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_dough') }}">
+                            <i class="fas fa-bowl-rice"></i> Xamir
                         </a>
                     </li>
                     {% endif %}
