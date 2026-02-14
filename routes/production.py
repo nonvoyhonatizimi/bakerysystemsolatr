@@ -64,28 +64,41 @@ def add_bread():
     if request.method == 'POST':
         xamir_id = request.form.get('xamir_id')
         xodim_id = request.form.get('xodim_id')
-        non_turi = request.form.get('non_turi', 'Domboq')
-        chiqqan_non = int(request.form.get('chiqqan_non', 0))
-        brak_non = int(request.form.get('brak_non', 0))
         
         # Tanlangan xamir ma'lumotlarini olish
         dough = Dough.query.get(xamir_id)
         hamir_kg = dough.un_kg if dough else 0
         
-        new_bread = BreadMaking(
-            sana=datetime.now().date(),
-            xamir_id=xamir_id,
-            xodim_id=xodim_id,
-            hamir_kg=hamir_kg,
-            non_turi=non_turi,
-            chiqqan_non=chiqqan_non,
-            brak=brak_non,
-            sof_non=chiqqan_non - brak_non
-        )
-        db.session.add(new_bread)
+        # 3 ta non turini qayta ishlash
+        non_turlari_saqlangan = []
+        for i in range(1, 4):
+            non_turi = request.form.get(f'non_turi_{i}', '')
+            chiqqan_non = int(request.form.get(f'chiqqan_non_{i}', 0) or 0)
+            brak_non = int(request.form.get(f'brak_non_{i}', 0) or 0)
+            
+            # Faqat tanlangan non turlarini saqlash
+            if non_turi and chiqqan_non > 0:
+                new_bread = BreadMaking(
+                    sana=datetime.now().date(),
+                    xamir_id=xamir_id,
+                    xodim_id=xodim_id,
+                    hamir_kg=hamir_kg,  # Barcha turlar uchun bir xil hamir kg
+                    non_turi=non_turi,
+                    chiqqan_non=chiqqan_non,
+                    brak=brak_non,
+                    sof_non=chiqqan_non - brak_non
+                )
+                db.session.add(new_bread)
+                non_turlari_saqlangan.append(f"{non_turi} ({chiqqan_non} dona)")
+        
         db.session.commit()
-        ish_haqqi = hamir_kg * 1500  # 1 kg = 1500 so'm
-        flash(f'{non_turi} non yasash qo\'shildi. {hamir_kg} kg hamir. Ish haqqi: {ish_haqqi:,} so\'m', 'success')
+        
+        if non_turlari_saqlangan:
+            ish_haqqi = hamir_kg * 1500  # 1 kg = 1500 so'm
+            flash(f"Non yasash qo'shildi: {', '.join(non_turlari_saqlangan)}. Hamir: {hamir_kg} kg. Ish haqqi: {ish_haqqi:,} so'm", 'success')
+        else:
+            flash('Hech qanday non turi tanlanmadi!', 'warning')
+        
         return redirect(url_for('production.list_bread'))
     
     doughs = Dough.query.order_by(Dough.sana.desc()).all()

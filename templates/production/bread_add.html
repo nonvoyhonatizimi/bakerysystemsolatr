@@ -33,13 +33,15 @@
                     </div>
                     
                     <hr class="my-4">
-                    <h6 class="mb-3">Non turlari va sonlari:</h6>
+                    <h6 class="mb-3">Non turlari va sonlari (bitta xamirdan bir nechta tur):</h6>
                     
-                    <div class="row">
+                    <!-- Non turi 1 -->
+                    <div class="row border rounded p-2 mb-2 bg-light">
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="non_turi" class="form-label">Non turi</label>
-                                <select class="form-select" id="non_turi" name="non_turi" required>
+                            <div class="mb-2">
+                                <label class="form-label">Non turi #1</label>
+                                <select class="form-select" name="non_turi_1">
+                                    <option value="">Tanlanmagan</option>
                                     <option value="Domboq">Domboq</option>
                                     <option value="Achchiq">Achchiq</option>
                                     <option value="Buxanka">Buxanka</option>
@@ -47,15 +49,69 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="chiqqan_non" class="form-label">Chiqqan non (dona)</label>
-                                <input type="number" class="form-control" id="chiqqan_non" name="chiqqan_non" required min="0">
+                            <div class="mb-2">
+                                <label class="form-label">Chiqqan non (dona)</label>
+                                <input type="number" class="form-control" name="chiqqan_non_1" min="0" value="0">
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="brak_non" class="form-label">Brak non (dona)</label>
-                                <input type="number" class="form-control" id="brak_non" name="brak_non" value="0" min="0">
+                            <div class="mb-2">
+                                <label class="form-label">Brak non (dona)</label>
+                                <input type="number" class="form-control" name="brak_non_1" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Non turi 2 -->
+                    <div class="row border rounded p-2 mb-2 bg-light">
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Non turi #2</label>
+                                <select class="form-select" name="non_turi_2">
+                                    <option value="">Tanlanmagan</option>
+                                    <option value="Domboq">Domboq</option>
+                                    <option value="Achchiq">Achchiq</option>
+                                    <option value="Buxanka">Buxanka</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Chiqqan non (dona)</label>
+                                <input type="number" class="form-control" name="chiqqan_non_2" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Brak non (dona)</label>
+                                <input type="number" class="form-control" name="brak_non_2" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Non turi 3 -->
+                    <div class="row border rounded p-2 mb-2 bg-light">
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Non turi #3</label>
+                                <select class="form-select" name="non_turi_3">
+                                    <option value="">Tanlanmagan</option>
+                                    <option value="Domboq">Domboq</option>
+                                    <option value="Achchiq">Achchiq</option>
+                                    <option value="Buxanka">Buxanka</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Chiqqan non (dona)</label>
+                                <input type="number" class="form-control" name="chiqqan_non_3" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <label class="form-label">Brak non (dona)</label>
+                                <input type="number" class="form-control" name="brak_non_3" min="0" value="0">
                             </div>
                         </div>
                     </div>
