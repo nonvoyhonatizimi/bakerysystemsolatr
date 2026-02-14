@@ -50,6 +50,7 @@ class Dough(db.Model):
     __tablename__ = 'xamir'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Vaqt bilan
     un_turi = db.Column(db.String(100), default='Oddiy un')  # Ishlatilgan un turi
     un_kg = db.Column(db.Integer, default=0)  # Hamir kg (ish haqqi va qoldiq uchun)
     xamir_soni = db.Column(db.Integer, default=0)

@@ -9,7 +9,7 @@ production_bp = Blueprint('production', __name__, url_prefix='/production')
 @login_required
 def list_dough():
     doughs = Dough.query.order_by(Dough.sana.desc()).all()
-    return render_template('production/dough_list.html', doughs=doughs)
+    return render_template('production/dough_list.html', doughs=doughs, timedelta=timedelta)
 
 @production_bp.route('/dough/add', methods=['GET', 'POST'])
 @login_required
