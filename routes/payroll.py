@@ -53,8 +53,15 @@ def index():
         # Yasovchi bo'lsa - ishlatilgan hamir kg (har 1 kg = 1500 so'm)
         elif emp.lavozim == 'Yasovchi':
             from models import BreadMaking
+            # Faqat bitta xamir uchun ish haqqi (har bir xamir_id faqat bir marta)
             nonlar = BreadMaking.query.filter_by(xodim_id=emp.id, sana=filter_date).all()
-            jami_hamir_kg = sum([n.hamir_kg for n in nonlar])
+            # Xamir ID larni unique qilish (bitta xamir uchun bir marta)
+            unique_xamir_ids = set()
+            jami_hamir_kg = 0
+            for n in nonlar:
+                if n.xamir_id not in unique_xamir_ids:
+                    unique_xamir_ids.add(n.xamir_id)
+                    jami_hamir_kg += n.hamir_kg
             ishchi_malumot['ish_soni'] = jami_hamir_kg
             ishchi_malumot['jami_ish_haqqi'] = jami_hamir_kg * 1500  # 1 kg = 1500 so'm
             ishchi_malumot['birlik'] = 'kg hamir'

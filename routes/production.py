@@ -94,8 +94,8 @@ def add_bread():
         db.session.commit()
         
         if non_turlari_saqlangan:
-            ish_haqqi = hamir_kg * 1500  # 1 kg = 1500 so'm
-            flash(f"Non yasash qo'shildi: {', '.join(non_turlari_saqlangan)}. Hamir: {hamir_kg} kg. Ish haqqi: {ish_haqqi:,} so'm", 'success')
+            ish_haqqi = hamir_kg * 1500  # 1 kg = 1500 so'm (bitta xamir uchun)
+            flash(f"Non yasash: {', '.join(non_turlari_saqlangan)}. Xamir: {hamir_kg} kg. Ish haqqi: {ish_haqqi:,} so'm (bir marta)", 'success')
         else:
             flash('Hech qanday non turi tanlanmadi!', 'warning')
         
