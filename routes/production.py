@@ -117,18 +117,15 @@ def list_oven():
 def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
-        tandir_raqami = request.form.get('tandir_raqami')
         un_kg = int(request.form.get('un_kg', 0))
-        kirgan = int(request.form.get('kirgan_non', 0))
-        chiqqan = int(request.form.get('chiqqan_non', 0))
         
         new_oven = Oven(
             sana=datetime.now().date(),
             xodim_id=tandirchi_id,
             un_kg=un_kg,
-            kirdi=kirgan,
-            chiqdi=chiqqan,
-            brak=kirgan - chiqqan
+            kirdi=0,
+            chiqdi=0,
+            brak=0
         )
         db.session.add(new_oven)
         db.session.commit()
