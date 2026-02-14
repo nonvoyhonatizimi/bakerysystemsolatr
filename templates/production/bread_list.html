@@ -16,7 +16,7 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Sana</th>
+                        <th>Sana/Soat</th>
                         <th>Xodim</th>
                         <th>Non turi</th>
                         <th>Hamir (kg)</th>
@@ -29,7 +29,7 @@
                 <tbody>
                     {% for b in breads %}
                     <tr>
-                        <td>{{ b.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ b.dough.sana.strftime('%d.%m.%Y %H:%M') }}</td>
                         <td>{{ b.employee.ism }}</td>
                         <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
                         <td>{{ b.hamir_kg }}</td>

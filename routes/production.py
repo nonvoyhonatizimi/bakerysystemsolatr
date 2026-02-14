@@ -64,10 +64,13 @@ def add_bread():
     if request.method == 'POST':
         xamir_id = request.form.get('xamir_id')
         xodim_id = request.form.get('xodim_id')
-        hamir_kg = int(request.form.get('hamir_kg', 0))
         non_turi = request.form.get('non_turi', 'Domboq')
         chiqqan_non = int(request.form.get('chiqqan_non', 0))
         brak_non = int(request.form.get('brak_non', 0))
+        
+        # Tanlangan xamir ma'lumotlarini olish
+        dough = Dough.query.get(xamir_id)
+        hamir_kg = dough.un_kg if dough else 0
         
         new_bread = BreadMaking(
             sana=datetime.now().date(),
@@ -85,7 +88,7 @@ def add_bread():
         flash(f'{non_turi} non yasash qo\'shildi. {hamir_kg} kg hamir. Ish haqqi: {ish_haqqi:,} so\'m', 'success')
         return redirect(url_for('production.list_bread'))
     
-    doughs = Dough.query.all()
+    doughs = Dough.query.order_by(Dough.sana.desc()).all()
     employees = Employee.query.filter_by(lavozim='Yasovchi').all()
     return render_template('production/bread_add.html', doughs=doughs, employees=employees)
 

@@ -5,48 +5,62 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="card">
             <div class="card-body p-4">
                 <form method="POST">
-                    <div class="mb-3">
-                        <label for="xamir_id" class="form-label">Xamir (Sana - ID)</label>
-                        <select class="form-select" id="xamir_id" name="xamir_id" required>
-                            {% for d in doughs %}
-                            <option value="{{ d.id }}">{{ d.sana }} - {{ d.id }} ({{ d.xamir_soni }} zuvala)</option>
-                            {% endfor %}
-                        </select>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="xodim_id" class="form-label">Yasovchi</label>
+                                <select class="form-select" id="xodim_id" name="xodim_id" required>
+                                    {% for emp in employees %}
+                                    <option value="{{ emp.id }}">{{ emp.ism }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="xamir_id" class="form-label">Xamir (Sana - Soat)</label>
+                                <select class="form-select" id="xamir_id" name="xamir_id" required>
+                                    {% for d in doughs %}
+                                    <option value="{{ d.id }}">{{ d.sana.strftime('%d.%m.%Y %H:%M') }} - {{ d.un_kg }} kg</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="xodim_id" class="form-label">Yasovchi</label>
-                        <select class="form-select" id="xodim_id" name="xodim_id" required>
-                            {% for emp in employees %}
-                            <option value="{{ emp.id }}">{{ emp.ism }}</option>
-                            {% endfor %}
-                        </select>
+                    
+                    <hr class="my-4">
+                    <h6 class="mb-3">Non turlari va sonlari:</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="non_turi" class="form-label">Non turi</label>
+                                <select class="form-select" id="non_turi" name="non_turi" required>
+                                    <option value="Domboq">Domboq</option>
+                                    <option value="Achchiq">Achchiq</option>
+                                    <option value="Buxanka">Buxanka</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="chiqqan_non" class="form-label">Chiqqan non (dona)</label>
+                                <input type="number" class="form-control" id="chiqqan_non" name="chiqqan_non" required min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="brak_non" class="form-label">Brak non (dona)</label>
+                                <input type="number" class="form-control" id="brak_non" name="brak_non" value="0" min="0">
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="hamir_kg" class="form-label">Ishlatilgan hamir (kg)</label>
-                        <input type="number" class="form-control" id="hamir_kg" name="hamir_kg" required min="1">
-                        <small class="text-muted">Har 1 kg hamir uchun 1,500 so'm ish haqqi</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="non_turi" class="form-label">Non turi</label>
-                        <select class="form-select" id="non_turi" name="non_turi" required>
-                            <option value="Domboq">Domboq</option>
-                            <option value="Achchiq">Achchiq</option>
-                            <option value="Buxanka">Buxanka</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="chiqqan_non" class="form-label">Chiqqan non (dona)</label>
-                        <input type="number" class="form-control" id="chiqqan_non" name="chiqqan_non" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="brak_non" class="form-label">Brak non (dona)</label>
-                        <input type="number" class="form-control" id="brak_non" name="brak_non" value="0">
-                    </div>
-                    <div class="d-grid gap-2">
+                    
+                    <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">Saqlash</button>
                         <a href="{{ url_for('production.list_bread') }}" class="btn btn-light">Bekor qilish</a>
                     </div>
