@@ -40,16 +40,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% set jami_haqqi = 0 %}
                     {% for ish in xodimlar_ishi %}
                     {% if ish.ish_soni > 0 %}
-                    {% set jami_haqqi = jami_haqqi + ish.jami_ish_haqqi %}
                     <tr>
                         <td>{{ ish.xodim.ism }}</td>
                         <td><span class="badge bg-secondary">{{ ish.lavozim }}</span></td>
                         <td class="fw-bold">{{ ish.ish_soni }}</td>
                         <td>{{ ish.birlik }}</td>
-                        <td class="text-success fw-bold">{{ ish.jami_ish_haqqi|number_format }} so'm</td>
+                        <td class="text-success fw-bold">{{ "{:,.0f}".format(ish.jami_ish_haqqi).replace(",", " ") }} so'm</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
@@ -57,7 +55,7 @@
                 <tfoot class="table-dark">
                     <tr>
                         <td colspan="4" class="text-end"><strong>Jami:</strong></td>
-                        <td><strong>{{ jami_haqqi|number_format }} so'm</strong></td>
+                        <td><strong>-</strong></td>
                     </tr>
                 </tfoot>
             </table>
