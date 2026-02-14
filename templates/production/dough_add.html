@@ -40,7 +40,7 @@
                         <input type="number" class="form-control" id="xamir_soni" name="xamir_soni" required>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary" {% if mavjud_un <= 0 %}disabled{% endif %}>Saqlash</button>
+                        <button type="submit" class="btn btn-primary" {% if mavjud_un_kg <= 0 %}disabled{% endif %}>Saqlash</button>
                         <a href="{{ url_for('production.list_dough') }}" class="btn btn-light">Bekor qilish</a>
                     </div>
                 </form>
