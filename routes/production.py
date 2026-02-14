@@ -17,32 +17,30 @@ def add_dough():
     # Mavjud un turlarini olish
     un_turlari = UnTuri.query.all()
     
-    # Tanlangan un turi bo'yicha qoldiqni hisoblash
+    # Tanlangan un turi bo'yicha qoldiqni hisoblash (kg bo'yicha)
     tanlangan_un_turi = request.form.get('un_turi') if request.method == 'POST' else (un_turlari[0].nomi if un_turlari else 'Oddiy un')
     
-    # Joriy un qoldigini olish (tanlangan tur bo'yicha) - qop bo'yicha
-    un_qoldiq = db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0
-    ishlatilgan_un = db.session.query(db.func.sum(Dough.un_qopi)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0
-    mavjud_un = un_qoldiq - ishlatilgan_un
+    # Joriy un qoldigini olish (kg bo'yicha) - 1 qop = 50 kg
+    un_qoldiq_kg = (db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0) * 50
+    ishlatilgan_un_kg = db.session.query(db.func.sum(Dough.un_kg)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0
+    mavjud_un_kg = un_qoldiq_kg - ishlatilgan_un_kg
     
     if request.method == 'POST':
         xodim_id = request.form.get('xodim_id')
-        un_qop = int(request.form.get('un_qop', 0))
         un_kg = int(request.form.get('un_kg', 0))  # Hamir kg
         xamir_soni = int(request.form.get('xamir_soni', 0))
         
-        # Un yetarli ekanligini tekshirish
-        if un_qop > mavjud_un:
-            flash(f'Xatolik: {tanlangan_un_turi} dan faqat {mavjud_un} qop mavjud! {un_qop} qop kerak.', 'error')
+        # Un yetarli ekanligini tekshirish (kg bo'yicha)
+        if un_kg > mavjud_un_kg:
+            flash(f'Xatolik: {tanlangan_un_turi} dan faqat {mavjud_un_kg} kg mavjud! {un_kg} kg kerak.', 'error')
             employees = Employee.query.filter_by(lavozim='Xamirchi').all()
             return render_template('production/dough_add.html', employees=employees, un_turlari=un_turlari, 
-                                 tanlangan_un_turi=tanlangan_un_turi, mavjud_un=mavjud_un)
+                                 tanlangan_un_turi=tanlangan_un_turi, mavjud_un_kg=mavjud_un_kg)
         
         new_dough = Dough(
             sana=datetime.now().date(),
             xodim_id=xodim_id,
             un_turi=tanlangan_un_turi,
-            un_qopi=un_qop,
             un_kg=un_kg,
             xamir_soni=xamir_soni
         )
@@ -54,7 +52,7 @@ def add_dough():
     
     employees = Employee.query.filter_by(lavozim='Xamirchi').all()
     return render_template('production/dough_add.html', employees=employees, un_turlari=un_turlari, 
-                         tanlangan_un_turi=tanlangan_un_turi, mavjud_un=mavjud_un)
+                         tanlangan_un_turi=tanlangan_un_turi, mavjud_un_kg=mavjud_un_kg)
 
 @production_bp.route('/bread')
 @login_required
@@ -129,19 +127,20 @@ def add_oven():
 @production_bp.route('/un-qoldiq')
 @login_required
 def un_qoldiq_list():
-    # Har bir un turi bo'yicha qoldiqni hisoblash
+    # Har bir un turi bo'yicha qoldiqni hisoblash (kg bo'yicha)
     un_turlari = UnTuri.query.all()
     un_statistika = []
     
     for un_turi in un_turlari:
-        kelgan = db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=un_turi.nomi).scalar() or 0
-        ishlatilgan = db.session.query(db.func.sum(Dough.un_qopi)).filter_by(un_turi=un_turi.nomi).scalar() or 0
-        mavjud = kelgan - ishlatilgan
+        kelgan_qop = db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=un_turi.nomi).scalar() or 0
+        kelgan_kg = kelgan_qop * 50  # 1 qop = 50 kg
+        ishlatilgan_kg = db.session.query(db.func.sum(Dough.un_kg)).filter_by(un_turi=un_turi.nomi).scalar() or 0
+        mavjud_kg = kelgan_kg - ishlatilgan_kg
         un_statistika.append({
             'turi': un_turi.nomi,
-            'kelgan': kelgan,
-            'ishlatilgan': ishlatilgan,
-            'mavjud': mavjud
+            'kelgan_kg': kelgan_kg,
+            'ishlatilgan_kg': ishlatilgan_kg,
+            'mavjud_kg': mavjud_kg
         })
     
     records = UnQoldiq.query.order_by(UnQoldiq.sana.desc()).all()

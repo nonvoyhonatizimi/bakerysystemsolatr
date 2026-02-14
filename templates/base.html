@@ -111,6 +111,14 @@
                     </li>
                     {% endif %}
 
+                    {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Yasovchi', 'Operator']) %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'production.list_bread' in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_bread') }}">
+                            <i class="fas fa-bread-slice"></i> Non Yasash
+                        </a>
+                    </li>
+                    {% endif %}
+
                     {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Tandirchi', 'Operator']) %}
                     <li class="nav-item">
                         <a class="nav-link {% if 'production.list_oven' in request.endpoint %}active{% endif %}" href="{{ url_for('production.list_oven') }}">
