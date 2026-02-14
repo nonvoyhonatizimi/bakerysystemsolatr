@@ -23,15 +23,13 @@ def add_employee():
         ism = request.form.get('ism')
         lavozim = request.form.get('lavozim')
         telefon = request.form.get('telefon')
-        oylik = request.form.get('oylik', 0)
-        ish_haqqi_stavka = request.form.get('ish_haqqi_stavka', 0)
         
         new_emp = Employee(
             ism=ism,
             lavozim=lavozim,
             telefon=telefon,
-            oylik=oylik,
-            ish_haqqi_stavka=ish_haqqi_stavka,
+            oylik=0,
+            ish_haqqi_stavka=0,
             ish_boshlanish=datetime.now().date()
         )
         db.session.add(new_emp)
