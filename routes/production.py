@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType
-from datetime import datetime
+from datetime import datetime, timedelta
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
 
@@ -56,7 +56,7 @@ def add_dough():
 @login_required
 def list_bread():
     breads = BreadMaking.query.order_by(BreadMaking.sana.desc()).all()
-    return render_template('production/bread_list.html', breads=breads)
+    return render_template('production/bread_list.html', breads=breads, timedelta=timedelta)
 
 @production_bp.route('/bread/add', methods=['GET', 'POST'])
 @login_required
@@ -104,7 +104,25 @@ def add_bread():
     doughs = Dough.query.order_by(Dough.sana.desc()).all()
     employees = Employee.query.filter_by(lavozim='Yasovchi').all()
     non_turlari = BreadType.query.order_by(BreadType.nomi).all()
-    return render_template('production/bread_add.html', doughs=doughs, employees=employees, non_turlari=non_turlari)
+    return render_template('production/bread_add.html', doughs=doughs, employees=employees, non_turlari=non_turlari, timedelta=timedelta)
+
+@production_bp.route('/bread/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_bread(id):
+    bread = BreadMaking.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        bread.non_turi = request.form.get('non_turi')
+        bread.chiqqan_non = int(request.form.get('chiqqan_non', 0))
+        bread.brak = int(request.form.get('brak_non', 0))
+        bread.sof_non = bread.chiqqan_non - bread.brak
+        
+        db.session.commit()
+        flash('Non yasash ma\'lumoti yangilandi', 'success')
+        return redirect(url_for('production.list_bread'))
+    
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    return render_template('production/bread_edit.html', bread=bread, non_turlari=non_turlari)
 
 @production_bp.route('/oven')
 @login_required

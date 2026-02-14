@@ -16,7 +16,7 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Sana/Soat</th>
+                        <th>Sana/Soat (UZ)</th>
                         <th>Xodim</th>
                         <th>Non turi</th>
                         <th>Hamir (kg)</th>
@@ -24,12 +24,13 @@
                         <th>Brak</th>
                         <th>Sof non</th>
                         <th>Ish haqqi</th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for b in breads %}
                     <tr>
-                        <td>{{ b.dough.sana.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>{{ (b.dough.sana + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') }}</td>
                         <td>{{ b.employee.ism }}</td>
                         <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
                         <td>{{ b.hamir_kg }}</td>
@@ -37,6 +38,11 @@
                         <td class="text-danger">{{ b.brak }}</td>
                         <td class="fw-bold text-success">{{ b.sof_non }}</td>
                         <td>{{ b.hamir_kg * 1500 }} so'm</td>
+                        <td>
+                            <a href="{{ url_for('production.edit_bread', id=b.id) }}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
