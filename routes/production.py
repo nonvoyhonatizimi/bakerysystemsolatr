@@ -69,9 +69,9 @@ def add_bread():
         dough = Dough.query.get(xamir_id)
         hamir_kg = dough.un_kg if dough else 0
         
-        # 3 ta non turini qayta ishlash
+        # 4 ta non turini qayta ishlash
         non_turlari_saqlangan = []
-        for i in range(1, 4):
+        for i in range(1, 5):
             non_turi = request.form.get(f'non_turi_{i}', '')
             chiqqan_non = int(request.form.get(f'chiqqan_non_{i}', 0) or 0)
             brak_non = int(request.form.get(f'brak_non_{i}', 0) or 0)
