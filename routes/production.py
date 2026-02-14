@@ -28,7 +28,6 @@ def add_dough():
     if request.method == 'POST':
         xodim_id = request.form.get('xodim_id')
         un_kg = int(request.form.get('un_kg', 0))  # Hamir kg
-        xamir_soni = int(request.form.get('xamir_soni', 0))
         
         # Un yetarli ekanligini tekshirish (kg bo'yicha)
         if un_kg > mavjud_un_kg:
@@ -41,8 +40,7 @@ def add_dough():
             sana=datetime.now().date(),
             xodim_id=xodim_id,
             un_turi=tanlangan_un_turi,
-            un_kg=un_kg,
-            xamir_soni=xamir_soni
+            un_kg=un_kg
         )
         db.session.add(new_dough)
         db.session.commit()

@@ -30,14 +30,10 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <label for="un_kg" class="form-label">Hamir (kg)</label>
                         <input type="number" class="form-control" id="un_kg" name="un_kg" required max="{{ mavjud_un_kg }}" min="1">
                         <small class="text-muted">Maksimum: {{ mavjud_un_kg }} kg mavjud. Har 1 kg uchun 600 so'm ish haqqi</small>
-                    </div>
-                    <div class="mb-4">
-                        <label for="xamir_soni" class="form-label">Xamir soni (zuvala)</label>
-                        <input type="number" class="form-control" id="xamir_soni" name="xamir_soni" required>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary" {% if mavjud_un_kg <= 0 %}disabled{% endif %}>Saqlash</button>

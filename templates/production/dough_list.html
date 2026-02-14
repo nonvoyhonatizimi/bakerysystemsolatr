@@ -19,7 +19,7 @@
                         <th>Sana</th>
                         <th>Xamirchi</th>
                         <th>Hamir (kg)</th>
-                        <th>Xamir soni</th>
+                        <th>Ish haqqi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -28,7 +28,7 @@
                         <td>{{ d.sana.strftime('%d.%m.%Y') }}</td>
                         <td>{{ d.employee.ism }}</td>
                         <td>{{ d.un_kg }}</td>
-                        <td>{{ d.xamir_soni }}</td>
+                        <td>{{ d.un_kg * 600 }} so'm</td>
                     </tr>
                     {% else %}
                     <tr>
