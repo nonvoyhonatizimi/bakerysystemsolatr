@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri
+from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType
 from datetime import datetime
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
@@ -103,7 +103,8 @@ def add_bread():
     
     doughs = Dough.query.order_by(Dough.sana.desc()).all()
     employees = Employee.query.filter_by(lavozim='Yasovchi').all()
-    return render_template('production/bread_add.html', doughs=doughs, employees=employees)
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    return render_template('production/bread_add.html', doughs=doughs, employees=employees, non_turlari=non_turlari)
 
 @production_bp.route('/oven')
 @login_required
