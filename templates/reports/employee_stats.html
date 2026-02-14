@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Xodimlar Ishi - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xodimlar ishi hisoboti{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="form-label">Boshlanish sanasi</label>
+                <input type="date" class="form-control" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Tugash sanasi</label>
+                <input type="date" class="form-control" name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Ko'rish</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Xodimlar ishi ({{ start_date }} - {{ end_date }})</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Xodim</th>
+                        <th>Lavozim</th>
+                        <th>Ish soni</th>
+                        <th>Birlik</th>
+                        <th>Jami ish haqqi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set jami_haqqi = 0 %}
+                    {% for ish in xodimlar_ishi %}
+                    {% if ish.ish_soni > 0 %}
+                    {% set jami_haqqi = jami_haqqi + ish.jami_ish_haqqi %}
+                    <tr>
+                        <td>{{ ish.xodim.ism }}</td>
+                        <td><span class="badge bg-secondary">{{ ish.lavozim }}</span></td>
+                        <td class="fw-bold">{{ ish.ish_soni }}</td>
+                        <td>{{ ish.birlik }}</td>
+                        <td class="text-success fw-bold">{{ ish.jami_ish_haqqi|number_format }} so'm</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-dark">
+                    <tr>
+                        <td colspan="4" class="text-end"><strong>Jami:</strong></td>
+                        <td><strong>{{ jami_haqqi|number_format }} so'm</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

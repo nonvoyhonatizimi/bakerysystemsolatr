@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Kunlik Ishlab Chiqarish - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Kunlik ishlab chiqarish hisoboti{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="form-label">Sana</label>
+                <input type="date" class="form-control" name="date" value="{{ filter_date }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Ko'rish</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Xamir statistikasi -->
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Xamir</h5>
+                <h3>{{ jami_xamir_kg }} kg</h3>
+                <p class="mb-0">{{ xamirlar|length }} ta yozuv</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Non yasash statistikasi -->
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Non yasash</h5>
+                <h3>{{ jami_non }} dona</h3>
+                <p class="mb-0">Brak: {{ jami_brak }} dona</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tandir statistikasi -->
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Tandir</h5>
+                <h3>{{ jami_tandir_kg }} kg un</h3>
+                <p class="mb-0">{{ jami_kirdi }} kirdi / {{ jami_chiqdi }} chiqdi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Non turlari bo'yicha -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Non turlari bo'yicha</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Non turi</th>
+                            <th>Jami</th>
+                            <th>Brak</th>
+                            <th>Sof</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nt in non_turlari %}
+                        <tr>
+                            <td><span class="badge bg-info">{{ nt.non_turi }}</span></td>
+                            <td>{{ nt.jami }}</td>
+                            <td class="text-danger">{{ nt.brak }}</td>
+                            <td class="text-success">{{ nt.jami - nt.brak }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Xamirlar ro'yxati -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Xamirlar</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Xodim</th>
+                            <th>Hamir (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in xamirlar %}
+                        <tr>
+                            <td>{{ x.employee.ism }}</td>
+                            <td>{{ x.un_kg }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

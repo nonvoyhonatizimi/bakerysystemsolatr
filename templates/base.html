@@ -148,10 +148,16 @@
                             <i class="fas fa-cash-register"></i> Kassa
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}" href="{{ url_for('reports.customer_debts') }}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'reports' in request.endpoint %}active{% endif %}" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-chart-line"></i> Hisobotlar
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('reports.daily_production') }}">Kunlik ishlab chiqarish</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('reports.employee_stats') }}">Xodimlar ishi</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('reports.customer_debts') }}">Mijozlar qarzi</a></li>
+                        </ul>
                     </li>
                     {% endif %}
 

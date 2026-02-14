@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Customer, Sale
+from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven
 from sqlalchemy import func
 from decimal import Decimal
 import requests
+from datetime import datetime, timedelta
 
 reports_bp = Blueprint('reports', __name__, url_prefix='/reports')
 
@@ -166,3 +167,110 @@ def send_debt_notification(customer_id):
         flash(f'❌ Xatolik: {e}')
     
     return redirect(url_for('reports.customer_debts'))
+
+@reports_bp.route('/daily-production')
+@login_required
+def daily_production():
+    """Kunlik ishlab chiqarish hisoboti"""
+    # Sana parametri
+    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    
+    # Xamir ma'lumotlari
+    xamirlar = Dough.query.filter_by(sana=filter_date).all()
+    jami_xamir_kg = sum([x.un_kg for x in xamirlar])
+    
+    # Non yasash ma'lumotlari
+    nonlar = BreadMaking.query.filter_by(sana=filter_date).all()
+    jami_non = sum([n.chiqqan_non for n in nonlar])
+    jami_brak = sum([n.brak for n in nonlar])
+    
+    # Non turlari bo'yicha
+    non_turlari = db.session.query(
+        BreadMaking.non_turi,
+        func.sum(BreadMaking.chiqqan_non).label('jami'),
+        func.sum(BreadMaking.brak).label('brak')
+    ).filter_by(sana=filter_date).group_by(BreadMaking.non_turi).all()
+    
+    # Tandir ma'lumotlari
+    tandirlar = Oven.query.filter_by(sana=filter_date).all()
+    jami_tandir_kg = sum([t.un_kg for t in tandirlar])
+    jami_kirdi = sum([t.kirdi for t in tandirlar])
+    jami_chiqdi = sum([t.chiqdi for t in tandirlar])
+    
+    return render_template('reports/daily_production.html',
+                         filter_date=filter_date,
+                         xamirlar=xamirlar,
+                         jami_xamir_kg=jami_xamir_kg,
+                         nonlar=nonlar,
+                         jami_non=jami_non,
+                         jami_brak=jami_brak,
+                         non_turlari=non_turlari,
+                         tandirlar=tandirlar,
+                         jami_tandir_kg=jami_tandir_kg,
+                         jami_kirdi=jami_kirdi,
+                         jami_chiqdi=jami_chiqdi)
+
+@reports_bp.route('/employee-stats')
+@login_required
+def employee_stats():
+    """Xodimlar ishi hisoboti"""
+    # Sana parametrlari
+    start_date = request.args.get('start_date', (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
+    end_date = request.args.get('end_date', datetime.now().strftime('%Y-%m-%d'))
+    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
+    # Barcha xodimlar
+    employees = Employee.query.all()
+    
+    # Har bir xodimning ishi
+    xodimlar_ishi = []
+    for emp in employees:
+        ish_malumot = {
+            'xodim': emp,
+            'lavozim': emp.lavozim,
+            'ish_soni': 0,
+            'jami_ish_haqqi': 0
+        }
+        
+        if emp.lavozim == 'Xamirchi':
+            xamirlar = Dough.query.filter(
+                Dough.xodim_id == emp.id,
+                Dough.sana >= start_date,
+                Dough.sana <= end_date
+            ).all()
+            jami_kg = sum([x.un_kg for x in xamirlar])
+            ish_malumot['ish_soni'] = jami_kg
+            ish_malumot['jami_ish_haqqi'] = jami_kg * 600
+            ish_malumot['birlik'] = 'kg hamir'
+            
+        elif emp.lavozim == 'Yasovchi':
+            nonlar = BreadMaking.query.filter(
+                BreadMaking.xodim_id == emp.id,
+                BreadMaking.sana >= start_date,
+                BreadMaking.sana <= end_date
+            ).all()
+            # Har bir non yozuvi uchun ish haqqi
+            jami_haqqi = sum([n.hamir_kg * 1500 for n in nonlar])
+            ish_malumot['ish_soni'] = len(nonlar)
+            ish_malumot['jami_ish_haqqi'] = jami_haqqi
+            ish_malumot['birlik'] = 'ta yozuv'
+            
+        elif emp.lavozim == 'Tandirchi':
+            tandirlar = Oven.query.filter(
+                Oven.xodim_id == emp.id,
+                Oven.sana >= start_date,
+                Oven.sana <= end_date
+            ).all()
+            jami_kg = sum([t.un_kg for t in tandirlar])
+            ish_malumot['ish_soni'] = jami_kg
+            ish_malumot['jami_ish_haqqi'] = jami_kg * 1000
+            ish_malumot['birlik'] = 'kg un'
+        
+        xodimlar_ishi.append(ish_malumot)
+    
+    return render_template('reports/employee_stats.html',
+                         start_date=start_date,
+                         end_date=end_date,
+                         xodimlar_ishi=xodimlar_ishi)
