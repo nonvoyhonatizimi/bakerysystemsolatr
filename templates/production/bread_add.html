@@ -18,11 +18,24 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="xodim_id" class="form-label">Non yashovchi</label>
+                        <label for="xodim_id" class="form-label">Yasovchi</label>
                         <select class="form-select" id="xodim_id" name="xodim_id" required>
                             {% for emp in employees %}
                             <option value="{{ emp.id }}">{{ emp.ism }}</option>
                             {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hamir_kg" class="form-label">Ishlatilgan hamir (kg)</label>
+                        <input type="number" class="form-control" id="hamir_kg" name="hamir_kg" required min="1">
+                        <small class="text-muted">Har 1 kg hamir uchun 1,500 so'm ish haqqi</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="non_turi" class="form-label">Non turi</label>
+                        <select class="form-select" id="non_turi" name="non_turi" required>
+                            <option value="Domboq">Domboq</option>
+                            <option value="Achchiq">Achchiq</option>
+                            <option value="Buxanka">Buxanka</option>
                         </select>
                     </div>
                     <div class="mb-3">

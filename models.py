@@ -51,7 +51,8 @@ class Dough(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
     un_turi = db.Column(db.String(100), default='Oddiy un')  # Ishlatilgan un turi
-    un_qopi = db.Column(db.Integer, default=0)
+    un_qopi = db.Column(db.Integer, default=0)  # Un qop soni (qoldiqdan ayirish uchun)
+    un_kg = db.Column(db.Integer, default=0)  # Hamir kg (ish haqqi uchun)
     xamir_soni = db.Column(db.Integer, default=0)
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
     
@@ -62,6 +63,8 @@ class BreadMaking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
     xamir_id = db.Column(db.Integer, db.ForeignKey('xamir.id'))
+    hamir_kg = db.Column(db.Integer, default=0)  # Ishlatilgan hamir kg (ish haqqi uchun)
+    non_turi = db.Column(db.String(100), default='Domboq')  # Non turi (Domboq, Achchiq, etc.)
     chiqqan_non = db.Column(db.Integer, default=0)
     sof_non = db.Column(db.Integer, default=0)
     brak = db.Column(db.Integer, default=0)
@@ -74,9 +77,10 @@ class Oven(db.Model):
     __tablename__ = 'tandir'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
-    kirdi = db.Column(db.Integer, default=0)
-    chiqdi = db.Column(db.Integer, default=0)
-    brak = db.Column(db.Integer, default=0)
+    un_kg = db.Column(db.Integer, default=0)  # Ishlatilgan un (kg)
+    kirdi = db.Column(db.Integer, default=0)  # Kirgan non (dona)
+    chiqdi = db.Column(db.Integer, default=0)  # Chiqqan non (dona)
+    brak = db.Column(db.Integer, default=0)  # Brak non (dona)
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
     
     employee = db.relationship('Employee', backref='oven_records')

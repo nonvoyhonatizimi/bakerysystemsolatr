@@ -31,9 +31,14 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="un_qop" class="form-label">Un miqdori (qop)</label>
+                        <label for="un_qop" class="form-label">Un miqdori (qop) - qoldiqdan ayirish uchun</label>
                         <input type="number" class="form-control" id="un_qop" name="un_qop" required max="{{ mavjud_un }}" min="1">
-                        <small class="text-muted">Maksimum: {{ mavjud_un }} qop</small>
+                        <small class="text-muted">Maksimum: {{ mavjud_un }} qop (1 qop = 50 kg)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="un_kg" class="form-label">Hamir (kg) - ish haqqi uchun</label>
+                        <input type="number" class="form-control" id="un_kg" name="un_kg" required min="1">
+                        <small class="text-muted">Har 1 kg hamir uchun 600 so'm ish haqqi</small>
                     </div>
                     <div class="mb-4">
                         <label for="xamir_soni" class="form-label">Xamir soni (zuvala)</label>

@@ -20,7 +20,7 @@ def add_dough():
     # Tanlangan un turi bo'yicha qoldiqni hisoblash
     tanlangan_un_turi = request.form.get('un_turi') if request.method == 'POST' else (un_turlari[0].nomi if un_turlari else 'Oddiy un')
     
-    # Joriy un qoldigini olish (tanlangan tur bo'yicha)
+    # Joriy un qoldigini olish (tanlangan tur bo'yicha) - qop bo'yicha
     un_qoldiq = db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0
     ishlatilgan_un = db.session.query(db.func.sum(Dough.un_qopi)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0
     mavjud_un = un_qoldiq - ishlatilgan_un
@@ -28,6 +28,7 @@ def add_dough():
     if request.method == 'POST':
         xodim_id = request.form.get('xodim_id')
         un_qop = int(request.form.get('un_qop', 0))
+        un_kg = int(request.form.get('un_kg', 0))  # Hamir kg
         xamir_soni = int(request.form.get('xamir_soni', 0))
         
         # Un yetarli ekanligini tekshirish
@@ -42,11 +43,13 @@ def add_dough():
             xodim_id=xodim_id,
             un_turi=tanlangan_un_turi,
             un_qopi=un_qop,
+            un_kg=un_kg,
             xamir_soni=xamir_soni
         )
         db.session.add(new_dough)
         db.session.commit()
-        flash(f'Xamir ma\'lumoti qo\'shildi. {tanlangan_un_turi}: {un_qop} qop ishlatildi. Qoldiq: {mavjud_un - un_qop} qop', 'success')
+        ish_haqqi = un_kg * 600  # 1 kg = 600 so'm
+        flash(f'Xamir ma\'lumoti qo\'shildi. {un_kg} kg hamir. Ish haqqi: {ish_haqqi:,} so\'m', 'success')
         return redirect(url_for('production.list_dough'))
     
     employees = Employee.query.filter_by(lavozim='Xamirchi').all()
@@ -65,24 +68,29 @@ def add_bread():
     if request.method == 'POST':
         xamir_id = request.form.get('xamir_id')
         xodim_id = request.form.get('xodim_id')
-        chiqqan_non = request.form.get('chiqqan_non', 0)
-        brak_non = request.form.get('brak_non', 0)
+        hamir_kg = int(request.form.get('hamir_kg', 0))
+        non_turi = request.form.get('non_turi', 'Domboq')
+        chiqqan_non = int(request.form.get('chiqqan_non', 0))
+        brak_non = int(request.form.get('brak_non', 0))
         
         new_bread = BreadMaking(
             sana=datetime.now().date(),
             xamir_id=xamir_id,
             xodim_id=xodim_id,
+            hamir_kg=hamir_kg,
+            non_turi=non_turi,
             chiqqan_non=chiqqan_non,
-            brak_non=brak_non,
-            sof_non=int(chiqqan_non) - int(brak_non)
+            brak=brak_non,
+            sof_non=chiqqan_non - brak_non
         )
         db.session.add(new_bread)
         db.session.commit()
-        flash('Non yasash ma\'lumoti qo\'shildi', 'success')
+        ish_haqqi = hamir_kg * 1500  # 1 kg = 1500 so'm
+        flash(f'{non_turi} non yasash qo\'shildi. {hamir_kg} kg hamir. Ish haqqi: {ish_haqqi:,} so\'m', 'success')
         return redirect(url_for('production.list_bread'))
     
-    doughs = Dough.query.filter_by(status='tayyor').all()
-    employees = Employee.query.filter_by(lavozim='Non yashovchi').all()
+    doughs = Dough.query.all()
+    employees = Employee.query.filter_by(lavozim='Yasovchi').all()
     return render_template('production/bread_add.html', doughs=doughs, employees=employees)
 
 @production_bp.route('/oven')
@@ -97,19 +105,21 @@ def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
         tandir_raqami = request.form.get('tandir_raqami')
-        kirgan = request.form.get('kirgan_non', 0)
-        chiqqan = request.form.get('chiqqan_non', 0)
+        un_kg = int(request.form.get('un_kg', 0))
+        kirgan = int(request.form.get('kirgan_non', 0))
+        chiqqan = int(request.form.get('chiqqan_non', 0))
         
         new_oven = Oven(
             sana=datetime.now().date(),
             xodim_id=tandirchi_id,
+            un_kg=un_kg,
             kirdi=kirgan,
             chiqdi=chiqqan,
-            brak=int(kirgan) - int(chiqqan)
+            brak=kirgan - chiqqan
         )
         db.session.add(new_oven)
         db.session.commit()
-        flash('Tandir ma\'lumoti qo\'shildi', 'success')
+        flash(f'Tandir ma\'lumoti qo\'shildi. Ish haqqi: {un_kg * 1000:,} so\'m', 'success')
         return redirect(url_for('production.list_oven'))
     
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()

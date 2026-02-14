@@ -34,30 +34,30 @@ def index():
             'jami_ish_haqqi': 0
         }
         
-        # Xamirchi bo'lsa - xamir qilgan qoplar soni
+        # Xamirchi bo'lsa - qilgan hamir kg (har 1 kg = 600 so'm)
         if emp.lavozim == 'Xamirchi':
             xamirlar = Dough.query.filter_by(xodim_id=emp.id, sana=filter_date).all()
-            jami_qop = sum([x.un_qopi for x in xamirlar])
-            ishchi_malumot['ish_soni'] = jami_qop
-            ishchi_malumot['jami_ish_haqqi'] = jami_qop * ishchi_malumot['stavka']
-            ishchi_malumot['birlik'] = 'qop'
+            jami_kg = sum([x.un_kg for x in xamirlar])
+            ishchi_malumot['ish_soni'] = jami_kg
+            ishchi_malumot['jami_ish_haqqi'] = jami_kg * 600  # 1 kg = 600 so'm
+            ishchi_malumot['birlik'] = 'kg hamir'
         
-        # Tandirchi bo'lsa - tandirga kirgan non soni
+        # Tandirchi bo'lsa - ishlatilgan un kg (har 1 kg = 1000 so'm)
         elif emp.lavozim == 'Tandirchi':
             tandirlar = Oven.query.filter_by(xodim_id=emp.id, sana=filter_date).all()
-            jami_non = sum([t.kirdi for t in tandirlar])
-            ishchi_malumot['ish_soni'] = jami_non
-            ishchi_malumot['jami_ish_haqqi'] = jami_non * ishchi_malumot['stavka']
-            ishchi_malumot['birlik'] = 'non'
+            jami_un_kg = sum([t.un_kg for t in tandirlar])
+            ishchi_malumot['ish_soni'] = jami_un_kg
+            ishchi_malumot['jami_ish_haqqi'] = jami_un_kg * 1000  # 1 kg = 1000 so'm
+            ishchi_malumot['birlik'] = 'kg un'
         
-        # Non yasovchi bo'lsa - chiqqan non soni
-        elif emp.lavozim == 'Non yashovchi':
+        # Yasovchi bo'lsa - ishlatilgan hamir kg (har 1 kg = 1500 so'm)
+        elif emp.lavozim == 'Yasovchi':
             from models import BreadMaking
             nonlar = BreadMaking.query.filter_by(xodim_id=emp.id, sana=filter_date).all()
-            jami_non = sum([n.chiqqan_non for n in nonlar])
-            ishchi_malumot['ish_soni'] = jami_non
-            ishchi_malumot['jami_ish_haqqi'] = jami_non * ishchi_malumot['stavka']
-            ishchi_malumot['birlik'] = 'non'
+            jami_hamir_kg = sum([n.hamir_kg for n in nonlar])
+            ishchi_malumot['ish_soni'] = jami_hamir_kg
+            ishchi_malumot['jami_ish_haqqi'] = jami_hamir_kg * 1500  # 1 kg = 1500 so'm
+            ishchi_malumot['birlik'] = 'kg hamir'
         
         hisobot.append(ishchi_malumot)
     
@@ -89,14 +89,14 @@ def detail(employee_id):
         
         if emp.lavozim == 'Xamirchi':
             xamirlar = Dough.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
-            ish_soni = sum([x.un_qopi for x in xamirlar])
+            ish_soni = sum([x.un_kg for x in xamirlar])
         elif emp.lavozim == 'Tandirchi':
             tandirlar = Oven.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
-            ish_soni = sum([t.kirdi for t in tandirlar])
-        elif emp.lavozim == 'Non yashovchi':
+            ish_soni = sum([t.un_kg for t in tandirlar])
+        elif emp.lavozim == 'Yasovchi':
             from models import BreadMaking
             nonlar = BreadMaking.query.filter_by(xodim_id=emp.id, sana=ish_kuni).all()
-            ish_soni = sum([n.chiqqan_non for n in nonlar])
+            ish_soni = sum([n.hamir_kg for n in nonlar])
         
         if ish_soni > 0:
             ish_haqqi = ish_soni * float(emp.ish_haqqi_stavka) if emp.ish_haqqi_stavka else 0
