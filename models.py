@@ -61,6 +61,7 @@ class BreadMaking(db.Model):
     __tablename__ = 'non_yasash'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Vaqt bilan
     xamir_id = db.Column(db.Integer, db.ForeignKey('xamir.id'))
     hamir_kg = db.Column(db.Integer, default=0)  # Ishlatilgan hamir kg (ish haqqi uchun)
     non_turi = db.Column(db.String(100), default='Domboq')  # Non turi (Domboq, Achchiq, etc.)

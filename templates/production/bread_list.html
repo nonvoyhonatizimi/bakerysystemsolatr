@@ -30,7 +30,7 @@
                 <tbody>
                     {% for b in breads %}
                     <tr>
-                        <td>{{ (b.dough.sana + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>{{ (b.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if b.created_at else b.sana.strftime('%d.%m.%Y') }}</td>
                         <td>{{ b.employee.ism }}</td>
                         <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
                         <td>{{ b.hamir_kg }}</td>
