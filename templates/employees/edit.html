@@ -43,6 +43,21 @@
                             <option value="noaktiv" {% if employee.status == 'noaktiv' %}selected{% endif %}>Noaktiv</option>
                         </select>
                     </div>
+                    
+                    <hr class="my-4">
+                    <h6 class="mb-3 text-muted">Tizimga kirish ma'lumotlari</h6>
+                    
+                    <div class="mb-3">
+                        <label for="login" class="form-label">Login</label>
+                        <input type="text" class="form-control" id="login" name="login" value="{{ user.login if user else '' }}">
+                        <small class="text-muted">Agar bo'sh qoldirilsa, o'zgartirilmaydi</small>
+                    </div>
+                    <div class="mb-4">
+                        <label for="parol" class="form-label">Yangi parol</label>
+                        <input type="text" class="form-control" id="parol" name="parol" placeholder="Yangi parol kiriting">
+                        <small class="text-muted">Agar bo'sh qoldirilsa, parol o'zgartirilmaydi</small>
+                    </div>
+                    
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Yangilash</button>
                         <a href="{{ url_for('employees.list_employees') }}" class="btn btn-light">Bekor qilish</a>

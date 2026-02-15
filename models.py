@@ -117,10 +117,12 @@ class Cash(db.Model):
     __tablename__ = 'kassa'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Vaqt bilan
     kirim = db.Column(db.Numeric(10, 2), default=0)
     chiqim = db.Column(db.Numeric(10, 2), default=0)
     balans = db.Column(db.Numeric(10, 2), default=0)
     izoh = db.Column(db.String(200))
+    turi = db.Column(db.String(50))  # Sotuv, Xarajat, Ish haqqi
 
 class Log(db.Model):
     __tablename__ = 'jurnal'

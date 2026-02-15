@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from models import db, Expense, Cash
-from datetime import datetime
+from datetime import datetime, timedelta
 
 finance_bp = Blueprint('finance', __name__, url_prefix='/finance')
 
@@ -36,7 +36,8 @@ def add_expense():
             sana=datetime.now().date(),
             chiqim=jami,
             balans=current_balance - jami,
-            izoh=f"Xarajat: {turi}"
+            izoh=f"Xarajat: {turi}",
+            turi='Xarajat'
         )
         
         db.session.add(new_expense)
@@ -52,4 +53,4 @@ def add_expense():
 def list_cash():
     cash_entries = Cash.query.order_by(Cash.sana.desc(), Cash.id.desc()).all()
     current_balance = cash_entries[0].balans if cash_entries else 0
-    return render_template('finance/cash_list.html', cash_entries=cash_entries, balance=current_balance)
+    return render_template('finance/cash_list.html', cash_entries=cash_entries, balance=current_balance, timedelta=timedelta)

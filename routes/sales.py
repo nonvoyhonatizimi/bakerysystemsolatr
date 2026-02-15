@@ -151,7 +151,8 @@ def pay_debt(sale_id):
             sana=datetime.now().date(),
             kirim=payment,
             balans=current_balance + payment,
-            izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'}"
+            izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'}",
+            turi='Qarz to\'lovi'
         )
         db.session.add(new_cash)
         db.session.commit()
@@ -202,7 +203,8 @@ def add_sale():
                 sana=datetime.now().date(),
                 kirim=tolandi,
                 balans=current_balance + tolandi,
-                izoh=f"Sotuv: {customer.nomi if customer else 'Noma`lum'}"
+                izoh=f"Sotuv: {customer.nomi if customer else 'Noma`lum'}",
+                turi='Sotuv'
             )
             db.session.add(new_cash)
             

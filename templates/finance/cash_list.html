@@ -24,7 +24,9 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Sana</th>
+                        <th>Sana/Soat (UZ)</th>
+                        <th>Turi</th>
+                        <th>Mijoz/Xodim</th>
                         <th>Kirim</th>
                         <th>Chiqim</th>
                         <th>Balans</th>
@@ -34,7 +36,16 @@
                 <tbody>
                     {% for cash in cash_entries %}
                     <tr>
-                        <td>{{ cash.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ (cash.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if cash.created_at else cash.sana.strftime('%d.%m.%Y') }}</td>
+                        <td><span class="badge bg-{{ 'success' if cash.kirim > 0 else 'danger' }}">{{ cash.turi if cash.turi else ('Kirim' if cash.kirim > 0 else 'Chiqim') }}</span></td>
+                        <td>
+                            {% if cash.izoh %}
+                                {% if 'Sotuv:' in cash.izoh %}{{ cash.izoh.split('Sotuv:')[1].strip() }}
+                                {% elif 'Qarz to\'lovi:' in cash.izoh %}{{ cash.izoh.split('Qarz to\'lovi:')[1].strip() }}
+                                {% elif 'Xarajat:' in cash.izoh %}{{ cash.izoh.split('Xarajat:')[1].strip() }}
+                                {% else %}-{% endif %}
+                            {% else %}-{% endif %}
+                        </td>
                         <td class="text-success">{% if cash.kirim > 0 %}+{{ "{:,.0f}".format(cash.kirim) }}{% endif %}</td>
                         <td class="text-danger">{% if cash.chiqim > 0 %}-{{ "{:,.0f}".format(cash.chiqim) }}{% endif %}</td>
                         <td class="fw-bold">{{ "{:,.0f}".format(cash.balans) }}</td>
@@ -42,7 +53,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted">Kassada harakatlar topilmadi</td>
+                        <td colspan="7" class="text-center text-muted">Kassada harakatlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>

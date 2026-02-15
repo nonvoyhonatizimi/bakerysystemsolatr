@@ -58,6 +58,8 @@ def add_employee():
 @login_required
 def edit_employee(id):
     emp = Employee.query.get_or_404(id)
+    user = User.query.filter_by(employee_id=emp.id).first()
+    
     if request.method == 'POST':
         emp.ism = request.form.get('ism')
         emp.lavozim = request.form.get('lavozim')
@@ -66,11 +68,27 @@ def edit_employee(id):
         emp.ish_haqqi_stavka = request.form.get('ish_haqqi_stavka', 0)
         emp.status = request.form.get('status', 'faol')
         
+        # Update user login and password
+        if user:
+            new_login = request.form.get('login', '').strip()
+            new_parol = request.form.get('parol', '').strip()
+            
+            if new_login:
+                # Check if login already exists (except current user)
+                existing = User.query.filter_by(login=new_login).first()
+                if existing and existing.id != user.id:
+                    flash('Bu login allaqachon band!', 'error')
+                    return redirect(url_for('employees.edit_employee', id=id))
+                user.login = new_login
+            
+            if new_parol:
+                user.parol = new_parol
+        
         db.session.commit()
         flash('Xodim ma\'lumotlari yangilandi', 'success')
         return redirect(url_for('employees.list_employees'))
     
-    return render_template('employees/edit.html', employee=emp)
+    return render_template('employees/edit.html', employee=emp, user=user)
 
 @employees_bp.route('/delete/<int:id>', methods=['POST'])
 @login_required
