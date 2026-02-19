@@ -233,3 +233,49 @@ def add_sale():
     customers = Customer.query.filter_by(status='faol').all()
     bread_types = BreadType.query.order_by(BreadType.nomi).all()
     return render_template('sales/add.html', customers=customers, bread_types=bread_types)
+
+@sales_bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_sale(id):
+    from decimal import Decimal
+    sale = Sale.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        # Calculate difference in debt
+        old_qarz = sale.qoldiq_qarz
+        
+        sale.mijoz_id = request.form.get('mijoz_id')
+        sale.non_turi = request.form.get('non_turi')
+        sale.miqdor = int(request.form.get('miqdor', 0))
+        narx = Decimal(str(request.form.get('narx', 0)))
+        sale.narx_dona = narx
+        sale.jami_summa = sale.miqdor * narx
+        
+        # Update customer debt
+        customer = Customer.query.get(sale.mijoz_id)
+        if customer:
+            customer.jami_qarz = customer.jami_qarz - old_qarz + sale.qoldiq_qarz
+        
+        db.session.commit()
+        flash('Sotuv ma\'lumoti yangilandi', 'success')
+        return redirect(url_for('sales.list_sales'))
+    
+    customers = Customer.query.filter_by(status='faol').all()
+    bread_types = BreadType.query.order_by(BreadType.nomi).all()
+    return render_template('sales/edit.html', sale=sale, customers=customers, bread_types=bread_types)
+
+@sales_bp.route('/delete/<int:id>')
+@login_required
+def delete_sale(id):
+    from decimal import Decimal
+    sale = Sale.query.get_or_404(id)
+    
+    # Update customer debt
+    customer = Customer.query.get(sale.mijoz_id)
+    if customer:
+        customer.jami_qarz -= sale.qoldiq_qarz
+    
+    db.session.delete(sale)
+    db.session.commit()
+    flash('Sotuv ma\'lumoti o\'chirildi', 'success')
+    return redirect(url_for('sales.list_sales'))

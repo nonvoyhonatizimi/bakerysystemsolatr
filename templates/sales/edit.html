@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Sotuvni tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Sotuv ma'lumotlarini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="mijoz_id" class="form-label">Mijoz</label>
+                        <select class="form-select" id="mijoz_id" name="mijoz_id" required>
+                            {% for customer in customers %}
+                            <option value="{{ customer.id }}" {% if customer.id == sale.mijoz_id %}selected{% endif %}>{{ customer.nomi }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="non_turi" class="form-label">Non turi</label>
+                        <select class="form-select" id="non_turi" name="non_turi" required>
+                            {% for bt in bread_types %}
+                            <option value="{{ bt.nomi }}" {% if bt.nomi == sale.non_turi %}selected{% endif %}>{{ bt.nomi }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="miqdor" class="form-label">Miqdor (dona)</label>
+                        <input type="number" class="form-control" id="miqdor" name="miqdor" value="{{ sale.miqdor }}" required min="1">
+                    </div>
+                    <div class="mb-4">
+                        <label for="narx" class="form-label">Narx (dona)</label>
+                        <input type="number" class="form-control" id="narx" name="narx" value="{{ sale.narx_dona }}" required min="0">
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Eslatma:</strong> To'langan summa va qarzni tahrirlash uchun "Qarz to'lash" funksiyasidan foydalaning.
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('sales.list_sales') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

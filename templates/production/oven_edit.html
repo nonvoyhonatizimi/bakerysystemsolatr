@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Tandirni tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Tandir ma'lumotlarini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="tandirchi_id" class="form-label">Tandirchi</label>
+                        <select class="form-select" id="tandirchi_id" name="tandirchi_id" required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}" {% if emp.id == oven.xodim_id %}selected{% endif %}>{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="un_kg" class="form-label">Un (kg)</label>
+                        <input type="number" class="form-control" id="un_kg" name="un_kg" value="{{ oven.un_kg }}" required min="1">
+                        <small class="text-muted">Har 1 kg un uchun 1,000 so'm ish haqqi</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kirdi" class="form-label">Kirgan non (dona)</label>
+                        <input type="number" class="form-control" id="kirdi" name="kirdi" value="{{ oven.kirdi }}" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="chiqdi" class="form-label">Chiqqan non (dona)</label>
+                        <input type="number" class="form-control" id="chiqdi" name="chiqdi" value="{{ oven.chiqdi }}" min="0">
+                    </div>
+                    <div class="mb-4">
+                        <label for="brak" class="form-label">Brak (dona)</label>
+                        <input type="number" class="form-control" id="brak" name="brak" value="{{ oven.brak }}" min="0">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_oven') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

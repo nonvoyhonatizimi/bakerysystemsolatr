@@ -43,13 +43,17 @@
                         <td>
                             {% if sale.qoldiq_qarz > 0 %}
                             <a href="{{ url_for('sales.pay_debt', sale_id=sale.id) }}" 
-                               class="btn btn-success btn-sm" 
+                               class="btn btn-success btn-sm me-1" 
                                title="Qarz to'lash">
                                 <i class="fas fa-money-bill-wave"></i> To'lash
                             </a>
-                            {% else %}
-                            <span class="badge bg-success">To'landi</span>
                             {% endif %}
+                            <a href="{{ url_for('sales.edit_sale', id=sale.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                            <a href="{{ url_for('sales.delete_sale', id=sale.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i> O'chirish
+                            </a>
                         </td>
                     </tr>
                     {% else %}

@@ -21,6 +21,7 @@
                         <th>Kirgan non</th>
                         <th>Chiqqan non</th>
                         <th>Brak</th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,10 +32,18 @@
                         <td>{{ o.kirdi }}</td>
                         <td>{{ o.chiqdi }}</td>
                         <td class="text-danger">{{ o.brak }}</td>
+                        <td>
+                            <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                            <a href="{{ url_for('production.delete_oven', id=o.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i> O'chirish
+                            </a>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="6" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>

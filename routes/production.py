@@ -184,6 +184,34 @@ def add_oven():
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()
     return render_template('production/oven_add.html', employees=employees)
 
+@production_bp.route('/oven/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_oven(id):
+    oven = Oven.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        oven.xodim_id = request.form.get('tandirchi_id')
+        oven.un_kg = int(request.form.get('un_kg', 0))
+        oven.kirdi = int(request.form.get('kirdi', 0))
+        oven.chiqdi = int(request.form.get('chiqdi', 0))
+        oven.brak = int(request.form.get('brak', 0))
+        
+        db.session.commit()
+        flash('Tandir ma\'lumoti yangilandi', 'success')
+        return redirect(url_for('production.list_oven'))
+    
+    employees = Employee.query.filter_by(lavozim='Tandirchi').all()
+    return render_template('production/oven_edit.html', oven=oven, employees=employees)
+
+@production_bp.route('/oven/delete/<int:id>')
+@login_required
+def delete_oven(id):
+    oven = Oven.query.get_or_404(id)
+    db.session.delete(oven)
+    db.session.commit()
+    flash('Tandir ma\'lumoti o\'chirildi', 'success')
+    return redirect(url_for('production.list_oven'))
+
 # Un qoldigini boshqarish
 @production_bp.route('/un-qoldiq')
 @login_required
