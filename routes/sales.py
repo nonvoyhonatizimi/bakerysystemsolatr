@@ -243,6 +243,7 @@ def edit_sale(id):
     if request.method == 'POST':
         # Calculate difference in debt
         old_qarz = sale.qoldiq_qarz
+        old_tolandi = sale.tolandi
         
         sale.mijoz_id = request.form.get('mijoz_id')
         sale.non_turi = request.form.get('non_turi')
@@ -250,6 +251,8 @@ def edit_sale(id):
         narx = Decimal(str(request.form.get('narx', 0)))
         sale.narx_dona = narx
         sale.jami_summa = sale.miqdor * narx
+        # Qarz qismi o'zgarmaydi (to'lov alohida)
+        sale.qoldiq_qarz = sale.jami_summa - old_tolandi
         
         # Update customer debt
         customer = Customer.query.get(sale.mijoz_id)
@@ -274,6 +277,15 @@ def delete_sale(id):
     customer = Customer.query.get(sale.mijoz_id)
     if customer:
         customer.jami_qarz -= sale.qoldiq_qarz
+    
+    # Delete related cash entry if exists (for the payment part)
+    if sale.tolandi > 0:
+        cash_entry = Cash.query.filter(
+            Cash.izoh.like(f'%Sotuv: {customer.nomi if customer else ""}%'),
+            Cash.kirim == sale.tolandi
+        ).order_by(Cash.id.desc()).first()
+        if cash_entry:
+            db.session.delete(cash_entry)
     
     db.session.delete(sale)
     db.session.commit()
