@@ -24,11 +24,12 @@
                     </div>
                     <div class="mb-3">
                         <label for="un_turi" class="form-label">Un turi</label>
-                        <select class="form-select" id="un_turi" name="un_turi" required onchange="this.form.submit()">
+                        <select class="form-select" id="un_turi" name="un_turi" required>
                             {% for turi in un_turlari %}
                             <option value="{{ turi.nomi }}" {% if turi.nomi == tanlangan_un_turi %}selected{% endif %}>{{ turi.nomi }}</option>
                             {% endfor %}
                         </select>
+                        <small class="text-muted">Agar un qoldig'i 0 bo'lsa, avval "Un Qoldig'i" bo'limidan un qo'shing</small>
                     </div>
                     <div class="mb-4">
                         <label for="un_kg" class="form-label">Hamir (kg)</label>
