@@ -52,6 +52,37 @@ def add_dough():
     return render_template('production/dough_add.html', employees=employees, un_turlari=un_turlari, 
                          tanlangan_un_turi=tanlangan_un_turi, mavjud_un_kg=mavjud_un_kg)
 
+@production_bp.route('/dough/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_dough(id):
+    dough = Dough.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        dough.xodim_id = request.form.get('xodim_id')
+        dough.un_kg = int(request.form.get('un_kg', 0))
+        dough.un_turi = request.form.get('un_turi')
+        
+        db.session.commit()
+        flash('Xamir ma\'lumoti yangilandi', 'success')
+        return redirect(url_for('production.list_dough'))
+    
+    employees = Employee.query.filter_by(lavozim='Xamirchi').all()
+    un_turlari = UnTuri.query.all()
+    return render_template('production/dough_edit.html', dough=dough, employees=employees, un_turlari=un_turlari)
+
+@production_bp.route('/dough/delete/<int:id>')
+@login_required
+def delete_dough(id):
+    dough = Dough.query.get_or_404(id)
+    
+    # Delete related bread making records first
+    BreadMaking.query.filter_by(xamir_id=dough.id).delete()
+    
+    db.session.delete(dough)
+    db.session.commit()
+    flash('Xamir ma\'lumoti o\'chirildi', 'success')
+    return redirect(url_for('production.list_dough'))
+
 @production_bp.route('/bread')
 @login_required
 def list_bread():

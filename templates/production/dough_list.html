@@ -20,6 +20,7 @@
                         <th>Xamirchi</th>
                         <th>Hamir (kg)</th>
                         <th>Ish haqqi</th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,10 +30,18 @@
                         <td>{{ d.employee.ism }}</td>
                         <td>{{ d.un_kg }}</td>
                         <td>{{ d.un_kg * 600 }} so'm</td>
+                        <td>
+                            <a href="{{ url_for('production.edit_dough', id=d.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                            <a href="{{ url_for('production.delete_dough', id=d.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i> O'chirish
+                            </a>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="5" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>

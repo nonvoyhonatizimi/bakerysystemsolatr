@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Xamirni tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Xamir ma'lumotlarini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="xodim_id" class="form-label">Xamirchi</label>
+                        <select class="form-select" id="xodim_id" name="xodim_id" required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}" {% if emp.id == dough.xodim_id %}selected{% endif %}>{{ emp.ism }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="un_turi" class="form-label">Un turi</label>
+                        <select class="form-select" id="un_turi" name="un_turi" required>
+                            {% for ut in un_turlari %}
+                            <option value="{{ ut.nomi }}" {% if ut.nomi == dough.un_turi %}selected{% endif %}>{{ ut.nomi }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="un_kg" class="form-label">Hamir (kg)</label>
+                        <input type="number" class="form-control" id="un_kg" name="un_kg" value="{{ dough.un_kg }}" required min="1">
+                        <small class="text-muted">Har 1 kg hamir uchun 600 so'm ish haqqi</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_dough') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
