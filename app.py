@@ -162,6 +162,7 @@ def init_db():
 # Initialize database on startup
 init_db()
 
+# Server restart - Render deployment trigger
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
