@@ -17,8 +17,11 @@ def add_dough():
     # Mavjud un turlarini olish
     un_turlari = UnTuri.query.all()
     
-    # Tanlangan un turi bo'yicha qoldiqni hisoblash (kg bo'yicha)
-    tanlangan_un_turi = request.form.get('un_turi') if request.method == 'POST' else (un_turlari[0].nomi if un_turlari else 'Oddiy un')
+    # Tanlangan un turi - GET da birinchi turini, POST da formadan olamiz
+    if request.method == 'POST':
+        tanlangan_un_turi = request.form.get('un_turi', 'Oddiy un')
+    else:
+        tanlangan_un_turi = un_turlari[0].nomi if un_turlari else 'Oddiy un'
     
     # Joriy un qoldigini olish (kg bo'yicha) - 1 qop = 50 kg
     un_qoldiq_kg = (db.session.query(db.func.sum(UnQoldiq.qop_soni)).filter_by(un_turi=tanlangan_un_turi).scalar() or 0) * 50
@@ -27,7 +30,7 @@ def add_dough():
     
     if request.method == 'POST':
         xodim_id = request.form.get('xodim_id')
-        un_kg = int(request.form.get('un_kg', 0))  # Hamir kg
+        un_kg = int(request.form.get('un_kg', 0) or 0)  # Hamir kg
         
         # Un yetarli ekanligini tekshirish (kg bo'yicha)
         if un_kg > mavjud_un_kg:
