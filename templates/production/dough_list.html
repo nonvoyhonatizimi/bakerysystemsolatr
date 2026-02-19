@@ -18,6 +18,7 @@
                     <tr>
                         <th>Sana/Soat (UZ)</th>
                         <th>Xamirchi</th>
+                        <th>Un turi</th>
                         <th>Hamir (kg)</th>
                         <th>Ish haqqi</th>
                         <th>Amallar</th>
@@ -28,6 +29,7 @@
                     <tr>
                         <td>{{ (d.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if d.created_at else d.sana.strftime('%d.%m.%Y') }}</td>
                         <td>{{ d.employee.ism }}</td>
+                        <td><span class="badge bg-secondary">{{ d.un_turi }}</span></td>
                         <td>{{ d.un_kg }}</td>
                         <td>{{ d.un_kg * 600 }} so'm</td>
                         <td>
@@ -41,7 +43,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="6" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>
