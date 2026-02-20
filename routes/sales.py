@@ -161,6 +161,14 @@ def pay_debt(sale_id):
             turi='Qarz to\'lovi'
         )
         db.session.add(new_cash)
+        
+        # Haydovchi to'lovini yangilash
+        driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
+        if driver_payment and driver_payment.status == 'kutilmoqda':
+            driver_payment.status = 'tolandi'
+            driver_payment.collected_at = datetime.now()
+            driver_payment.summa = payment
+        
         db.session.commit()
         
         flash(f'{float(payment):,.0f} so\'m qarz to\'landi', 'success')
@@ -316,6 +324,11 @@ def delete_sale(id):
         ).order_by(Cash.id.desc()).first()
         if cash_entry:
             db.session.delete(cash_entry)
+    
+    # Delete related driver payment if exists
+    driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
+    if driver_payment:
+        db.session.delete(driver_payment)
     
     db.session.delete(sale)
     db.session.commit()
