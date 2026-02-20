@@ -277,6 +277,13 @@ def edit_sale(id):
         if customer:
             customer.jami_qarz = customer.jami_qarz - old_qarz + sale.qoldiq_qarz
         
+        # Agar to'lov to'liq bo'lsa (qarz 0), haydovchi to'lovini ham yangilash
+        if sale.qoldiq_qarz == 0:
+            driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
+            if driver_payment and driver_payment.status == 'kutilmoqda':
+                driver_payment.status = 'tolandi'
+                driver_payment.collected_at = datetime.now()
+        
         db.session.commit()
         flash('Sotuv ma\'lumoti yangilandi', 'success')
         return redirect(url_for('sales.list_sales'))
