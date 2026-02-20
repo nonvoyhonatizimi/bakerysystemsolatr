@@ -277,12 +277,17 @@ def edit_sale(id):
         if customer:
             customer.jami_qarz = customer.jami_qarz - old_qarz + sale.qoldiq_qarz
         
-        # Agar to'lov to'liq bo'lsa (qarz 0), haydovchi to'lovini ham yangilash
-        if sale.qoldiq_qarz == 0:
+        # Agar to'lov qilingan bo'lsa (tolandi o'zgargan), haydovchi to'lovini ham yangilash
+        new_tolandi = Decimal(str(request.form.get('tolandi', 0)))
+        if new_tolandi > old_tolandi:
+            # Qancha to'langanini hisoblash
+            tolangan_qism = new_tolandi - old_tolandi
             driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
             if driver_payment and driver_payment.status == 'kutilmoqda':
                 driver_payment.status = 'tolandi'
                 driver_payment.collected_at = datetime.now()
+                # To'langan summani yangilash (faqat to'langan qismi)
+                driver_payment.summa = tolangan_qism
         
         db.session.commit()
         flash('Sotuv ma\'lumoti yangilandi', 'success')
