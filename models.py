@@ -1,8 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timedelta
 
 db = SQLAlchemy()
+
+# Uzbekistan timezone helper (UTC+5)
+def uz_datetime(dt=None):
+    """Convert datetime to Uzbekistan timezone (UTC+5)"""
+    if dt is None:
+        dt = datetime.utcnow()
+    return dt + timedelta(hours=5)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'foydalanuvchilar'
@@ -13,7 +20,7 @@ class User(UserMixin, db.Model):
     ism = db.Column(db.String(100))
     employee_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'), nullable=True)
     status = db.Column(db.String(20), default='active')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
     
     employee = db.relationship('Employee', backref=db.backref('user', uselist=False))
 
@@ -44,7 +51,7 @@ class BreadType(db.Model):
     __tablename__ = 'non_turlari'
     id = db.Column(db.Integer, primary_key=True)
     nomi = db.Column(db.String(100), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
 
 class Dough(db.Model):
     __tablename__ = 'xamir'
@@ -147,13 +154,13 @@ class UnTuri(db.Model):
     __tablename__ = 'un_turlari'
     id = db.Column(db.Integer, primary_key=True)
     nomi = db.Column(db.String(100), nullable=False, unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
 
 class BreadTransfer(db.Model):
     __tablename__ = 'non_otkazish'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
     # Kimdan (Tandirchi yoki Haydovchi)
     from_xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
     # Kimga (Haydovchi)
@@ -181,7 +188,7 @@ class DriverPayment(db.Model):
     mijoz_id = db.Column(db.Integer, db.ForeignKey('mijozlar.id'), nullable=False)
     summa = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(20), default='kutilmoqda')  # kutilmoqda, tolandi
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
     collected_at = db.Column(db.DateTime, nullable=True)
     
     sale = db.relationship('Sale', backref='driver_payment')

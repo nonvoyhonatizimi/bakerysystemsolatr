@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee, DriverPayment
+from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee, DriverPayment, uz_datetime
 from datetime import datetime
 import requests
 import json
@@ -166,7 +166,7 @@ def pay_debt(sale_id):
         driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
         if driver_payment and driver_payment.status == 'kutilmoqda':
             driver_payment.status = 'tolandi'
-            driver_payment.collected_at = datetime.now()
+            driver_payment.collected_at = uz_datetime()
             driver_payment.summa = payment
         
         db.session.commit()
@@ -241,7 +241,7 @@ def add_sale():
         sale_info = {
             "sotuv_id": new_sale.id,
             "sana": new_sale.sana.strftime('%d.%m.%Y'),
-            "vaqt": datetime.now().strftime('%H:%M:%S'),
+            "vaqt": uz_datetime().strftime('%H:%M:%S'),
             "mijoz": customer.nomi if customer else "Noma'lum",
             "non_turi": non_turi,
             "miqdor": miqdor,
@@ -293,7 +293,7 @@ def edit_sale(id):
             driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
             if driver_payment and driver_payment.status == 'kutilmoqda':
                 driver_payment.status = 'tolandi'
-                driver_payment.collected_at = datetime.now()
+                driver_payment.collected_at = uz_datetime()
                 # To'langan summani yangilash (faqat to'langan qismi)
                 driver_payment.summa = tolangan_qism
         
