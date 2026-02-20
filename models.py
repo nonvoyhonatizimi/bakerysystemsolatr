@@ -148,3 +148,27 @@ class UnTuri(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nomi = db.Column(db.String(100), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class BreadTransfer(db.Model):
+    __tablename__ = 'non_otkazish'
+    id = db.Column(db.Integer, primary_key=True)
+    sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Kimdan (Tandirchi yoki Haydovchi)
+    from_xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
+    # Kimga (Haydovchi)
+    to_xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
+    # Turi: 'tandirchi' yoki 'haydovchi' (kimdan o'tkazilgani)
+    from_turi = db.Column(db.String(20), default='tandirchi')
+    # 4 ta non turi uchun
+    non_turi_1 = db.Column(db.String(100))
+    non_miqdor_1 = db.Column(db.Integer, default=0)
+    non_turi_2 = db.Column(db.String(100))
+    non_miqdor_2 = db.Column(db.Integer, default=0)
+    non_turi_3 = db.Column(db.String(100))
+    non_miqdor_3 = db.Column(db.Integer, default=0)
+    non_turi_4 = db.Column(db.String(100))
+    non_miqdor_4 = db.Column(db.Integer, default=0)
+    
+    from_employee = db.relationship('Employee', foreign_keys=[from_xodim_id], backref='transfers_sent')
+    to_employee = db.relationship('Employee', foreign_keys=[to_xodim_id], backref='transfers_received')

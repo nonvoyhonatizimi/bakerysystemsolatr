@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Bugungi o'tkazishlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Bugungi non o'tkazishlari{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label for="date" class="col-form-label">Sana:</label>
+            </div>
+            <div class="col-auto">
+                <input type="date" class="form-control" id="date" name="date" value="{{ filter_date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Ko'rish</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Jami nonlar -->
+{% if jami_nonlar %}
+<div class="card mb-4 bg-light">
+    <div class="card-body">
+        <h5 class="mb-3">Jami o'tkazilgan nonlar:</h5>
+        <div class="row">
+            {% for turi, miqdor in jami_nonlar.items() %}
+            <div class="col-md-3 mb-2">
+                <span class="badge bg-primary fs-6">{{ turi }}: {{ miqdor }} dona</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Haydovchi o'tkazishlari -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Haydovchi → Haydovchi</h5>
+            </div>
+            <div class="card-body">
+                {% if haydovchi_transfers %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Soat</th>
+                                <th>Kimdan</th>
+                                <th>Kimga</th>
+                                <th>Nonlar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in haydovchi_transfers %}
+                            <tr>
+                                <td>{{ t.created_at.strftime('%H:%M') if t.created_at else '-' }}</td>
+                                <td>{{ t.from_employee.ism }}</td>
+                                <td>{{ t.to_employee.ism }}</td>
+                                <td>
+                                    {% for i in range(1, 5) %}
+                                        {% set turi = t['non_turi_' ~ i] %}
+                                        {% set miqdor = t['non_miqdor_' ~ i] %}
+                                        {% if turi and miqdor > 0 %}
+                                            <span class="badge bg-info">{{ turi }}: {{ miqdor }}</span><br>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">O'tkazishlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tandirchi o'tkazishlari -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Tandirchi → Haydovchi</h5>
+            </div>
+            <div class="card-body">
+                {% if tandirchi_transfers %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Soat</th>
+                                <th>Tandirchi</th>
+                                <th>Kimga</th>
+                                <th>Nonlar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in tandirchi_transfers %}
+                            <tr>
+                                <td>{{ t.created_at.strftime('%H:%M') if t.created_at else '-' }}</td>
+                                <td>{{ t.from_employee.ism }}</td>
+                                <td>{{ t.to_employee.ism }}</td>
+                                <td>
+                                    {% for i in range(1, 5) %}
+                                        {% set turi = t['non_turi_' ~ i] %}
+                                        {% set miqdor = t['non_miqdor_' ~ i] %}
+                                        {% if turi and miqdor > 0 %}
+                                            <span class="badge bg-info">{{ turi }}: {{ miqdor }}</span><br>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">O'tkazishlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

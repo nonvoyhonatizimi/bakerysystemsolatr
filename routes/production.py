@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType
+from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer
 from datetime import datetime, timedelta
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
@@ -186,6 +186,61 @@ def add_oven():
     
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()
     return render_template('production/oven_add.html', employees=employees)
+
+# ========== TANDIRCHI → HAYDOVCHI NON O'TKAZISH ==========
+@production_bp.route('/oven/transfer', methods=['GET', 'POST'])
+@login_required
+def add_oven_transfer():
+    """Tandirchi haydovchiga non o'tkazish"""
+    # Faqat tandirchi yoki admin qila oladi
+    if current_user.rol != 'admin' and (not current_user.employee or current_user.employee.lavozim != 'Tandirchi'):
+        flash('Bu funksiya faqat tandirchi uchun!', 'error')
+        return redirect(url_for('production.list_oven'))
+    
+    if request.method == 'POST':
+        from_xodim_id = request.form.get('from_xodim_id')
+        to_xodim_id = request.form.get('to_xodim_id')
+        
+        # 4 ta non turini olish
+        non_turlar = []
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '')
+            non_miqdor = int(request.form.get(f'non_miqdor_{i}', 0) or 0)
+            if non_turi and non_miqdor > 0:
+                non_turlar.append((non_turi, non_miqdor))
+        
+        if not non_turlar:
+            flash('Kamida bitta non turi va miqdor kiriting!', 'error')
+            return redirect(url_for('production.add_oven_transfer'))
+        
+        # Yangi o'tkazish yaratish
+        new_transfer = BreadTransfer(
+            sana=datetime.now().date(),
+            from_xodim_id=from_xodim_id,
+            to_xodim_id=to_xodim_id,
+            from_turi='tandirchi'
+        )
+        
+        # Non turlarini qo'shish
+        for i, (turi, miqdor) in enumerate(non_turlar[:4], 1):
+            setattr(new_transfer, f'non_turi_{i}', turi)
+            setattr(new_transfer, f'non_miqdor_{i}', miqdor)
+        
+        db.session.add(new_transfer)
+        db.session.commit()
+        
+        flash('Non o\'tkazish muvaffaqiyatli saqlandi!', 'success')
+        return redirect(url_for('production.list_oven'))
+    
+    # Tandirchilar va haydovchilarni olish
+    tandirchilar = Employee.query.filter_by(lavozim='Tandirchi', status='faol').all()
+    haydovchilar = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    
+    return render_template('production/oven_transfer_add.html', 
+                         tandirchilar=tandirchilar,
+                         haydovchilar=haydovchilar, 
+                         non_turlari=non_turlari)
 
 @production_bp.route('/oven/edit/<int:id>', methods=['GET', 'POST'])
 @login_required

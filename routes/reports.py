@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven
+from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven, BreadTransfer
 from sqlalchemy import func
 from decimal import Decimal
 import requests
@@ -274,3 +274,44 @@ def employee_stats():
                          start_date=start_date,
                          end_date=end_date,
                          xodimlar_ishi=xodimlar_ishi)
+
+@reports_bp.route('/daily-transfers')
+@login_required
+def daily_transfers():
+    """Bugungi barcha o'tkazishlar hisoboti"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('index'))
+    
+    # Sana parametri
+    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    
+    # Haydovchi → Haydovchi o'tkazishlari
+    haydovchi_transfers = BreadTransfer.query.filter(
+        BreadTransfer.from_turi == 'haydovchi',
+        BreadTransfer.sana == filter_date
+    ).order_by(BreadTransfer.created_at.desc()).all()
+    
+    # Tandirchi → Haydovchi o'tkazishlari
+    tandirchi_transfers = BreadTransfer.query.filter(
+        BreadTransfer.from_turi == 'tandirchi',
+        BreadTransfer.sana == filter_date
+    ).order_by(BreadTransfer.created_at.desc()).all()
+    
+    # Jami nonlar hisoboti
+    jami_nonlar = {}
+    for t in list(haydovchi_transfers) + list(tandirchi_transfers):
+        for i in range(1, 5):
+            turi = getattr(t, f'non_turi_{i}')
+            miqdor = getattr(t, f'non_miqdor_{i}')
+            if turi and miqdor > 0:
+                if turi not in jami_nonlar:
+                    jami_nonlar[turi] = 0
+                jami_nonlar[turi] += miqdor
+    
+    return render_template('reports/daily_transfers.html',
+                         filter_date=filter_date,
+                         haydovchi_transfers=haydovchi_transfers,
+                         tandirchi_transfers=tandirchi_transfers,
+                         jami_nonlar=jami_nonlar)

@@ -148,6 +148,11 @@
                             <i class="fas fa-cash-register"></i> Kassa
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'daily_transfers' in request.endpoint %}active{% endif %}" href="{{ url_for('reports.daily_transfers') }}">
+                            <i class="fas fa-exchange-alt"></i> Bugungi o'tkazishlar
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {% if 'reports' in request.endpoint %}active{% endif %}" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-chart-line"></i> Hisobotlar

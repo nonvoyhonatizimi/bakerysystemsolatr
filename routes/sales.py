@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Sale, Customer, Cash, BreadType
+from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee
 from datetime import datetime
 import requests
 import json
@@ -115,7 +115,9 @@ def send_telegram_notification(customer_name, sale_data):
 @login_required
 def list_sales():
     sales = Sale.query.order_by(Sale.sana.desc()).all()
-    return render_template('sales/list.html', sales=sales)
+    # Tandirchi o'tkazishlarini ham olish
+    tandir_transfers = BreadTransfer.query.filter_by(from_turi='tandirchi').order_by(BreadTransfer.created_at.desc()).all()
+    return render_template('sales/list.html', sales=sales, tandir_transfers=tandir_transfers)
 
 @sales_bp.route('/pay-debt/<int:sale_id>', methods=['GET', 'POST'])
 @login_required
@@ -291,3 +293,113 @@ def delete_sale(id):
     db.session.commit()
     flash('Sotuv ma\'lumoti o\'chirildi', 'success')
     return redirect(url_for('sales.list_sales'))
+
+# ========== HAYDOVCHI → HAYDOVCHI NON O'TKAZISH ==========
+@sales_bp.route('/transfer', methods=['GET', 'POST'])
+@login_required
+def add_transfer():
+    """Haydovchi smena almashuvi - non o'tkazish (faqat admin)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('sales.list_sales'))
+    
+    if request.method == 'POST':
+        from_xodim_id = request.form.get('from_xodim_id')
+        to_xodim_id = request.form.get('to_xodim_id')
+        
+        # 4 ta non turini olish
+        non_turlar = []
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '')
+            non_miqdor = int(request.form.get(f'non_miqdor_{i}', 0) or 0)
+            if non_turi and non_miqdor > 0:
+                non_turlar.append((non_turi, non_miqdor))
+        
+        if not non_turlar:
+            flash('Kamida bitta non turi va miqdor kiriting!', 'error')
+            return redirect(url_for('sales.add_transfer'))
+        
+        # Yangi o'tkazish yaratish
+        new_transfer = BreadTransfer(
+            sana=datetime.now().date(),
+            from_xodim_id=from_xodim_id,
+            to_xodim_id=to_xodim_id,
+            from_turi='haydovchi'
+        )
+        
+        # Non turlarini qo'shish
+        for i, (turi, miqdor) in enumerate(non_turlar[:4], 1):
+            setattr(new_transfer, f'non_turi_{i}', turi)
+            setattr(new_transfer, f'non_miqdor_{i}', miqdor)
+        
+        db.session.add(new_transfer)
+        db.session.commit()
+        
+        flash('Non o\'tkazish muvaffaqiyatli saqlandi!', 'success')
+        return redirect(url_for('sales.list_transfers'))
+    
+    # Faqat haydovchilarni olish
+    haydovchilar = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    
+    return render_template('sales/transfer_add.html', 
+                         haydovchilar=haydovchilar, 
+                         non_turlari=non_turlari)
+
+@sales_bp.route('/transfers')
+@login_required
+def list_transfers():
+    """Barcha o'tkazishlar ro'yxati (faqat admin)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('sales.list_sales'))
+    
+    transfers = BreadTransfer.query.filter_by(from_turi='haydovchi').order_by(BreadTransfer.created_at.desc()).all()
+    return render_template('sales/transfer_list.html', transfers=transfers)
+
+@sales_bp.route('/transfer/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_transfer(id):
+    """O'tkazishni tahrirlash (faqat admin)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('sales.list_sales'))
+    
+    transfer = BreadTransfer.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        transfer.from_xodim_id = request.form.get('from_xodim_id')
+        transfer.to_xodim_id = request.form.get('to_xodim_id')
+        
+        # 4 ta non turini yangilash
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '')
+            non_miqdor = int(request.form.get(f'non_miqdor_{i}', 0) or 0)
+            setattr(transfer, f'non_turi_{i}', non_turi if non_turi else None)
+            setattr(transfer, f'non_miqdor_{i}', non_miqdor)
+        
+        db.session.commit()
+        flash('O\'tkazish ma\'lumoti yangilandi!', 'success')
+        return redirect(url_for('sales.list_transfers'))
+    
+    haydovchilar = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    
+    return render_template('sales/transfer_edit.html', 
+                         transfer=transfer,
+                         haydovchilar=haydovchilar, 
+                         non_turlari=non_turlari)
+
+@sales_bp.route('/transfer/delete/<int:id>')
+@login_required
+def delete_transfer(id):
+    """O'tkazishni o'chirish (faqat admin)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('sales.list_sales'))
+    
+    transfer = BreadTransfer.query.get_or_404(id)
+    db.session.delete(transfer)
+    db.session.commit()
+    flash('O\'tkazish o\'chirildi!', 'success')
+    return redirect(url_for('sales.list_transfers'))

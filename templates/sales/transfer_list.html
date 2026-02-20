@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Non o'tkazishlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Haydovchi o'tkazishlari ro'yxati{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Barcha o'tkazishlar</h5>
+        <a href="{{ url_for('sales.add_transfer') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Yangi o'tkazish
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana/Soat</th>
+                        <th>Kimdan</th>
+                        <th>Kimga</th>
+                        <th>Non turlari</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transfers %}
+                    <tr>
+                        <td>{{ t.created_at.strftime('%d.%m.%Y %H:%M') if t.created_at else t.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ t.from_employee.ism }}</td>
+                        <td>{{ t.to_employee.ism }}</td>
+                        <td>
+                            {% if t.non_turi_1 and t.non_miqdor_1 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_1 }}: {{ t.non_miqdor_1 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_2 and t.non_miqdor_2 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_2 }}: {{ t.non_miqdor_2 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_3 and t.non_miqdor_3 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_3 }}: {{ t.non_miqdor_3 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_4 and t.non_miqdor_4 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_4 }}: {{ t.non_miqdor_4 }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('sales.edit_transfer', id=t.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                            <a href="{{ url_for('sales.delete_transfer', id=t.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i> O'chirish
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">O'tkazishlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -7,9 +7,16 @@
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Sotuvlar ro'yxati</h5>
-        <a href="{{ url_for('sales.add_sale') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-cart-plus me-1"></i> Yangi sotuv
-        </a>
+        <div>
+            {% if current_user.rol == 'admin' %}
+            <a href="{{ url_for('sales.add_transfer') }}" class="btn btn-warning btn-sm me-2">
+                <i class="fas fa-exchange-alt me-1"></i> O'tkazish
+            </a>
+            {% endif %}
+            <a href="{{ url_for('sales.add_sale') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-cart-plus me-1"></i> Yangi sotuv
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -64,6 +71,46 @@
                 </tbody>
             </table>
         </div>
+        
+        {% if tandir_transfers %}
+        <hr class="my-4">
+        <h5 class="mb-3">Tandirchi o'tkazishlari</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana/Soat</th>
+                        <th>Tandirchi</th>
+                        <th>Kimga</th>
+                        <th>Non turlari</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tandir_transfers %}
+                    <tr class="table-warning">
+                        <td>{{ t.created_at.strftime('%d.%m.%Y %H:%M') if t.created_at else t.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ t.from_employee.ism }}</td>
+                        <td>{{ t.to_employee.ism }}</td>
+                        <td>
+                            {% if t.non_turi_1 and t.non_miqdor_1 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_1 }}: {{ t.non_miqdor_1 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_2 and t.non_miqdor_2 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_2 }}: {{ t.non_miqdor_2 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_3 and t.non_miqdor_3 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_3 }}: {{ t.non_miqdor_3 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_4 and t.non_miqdor_4 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_4 }}: {{ t.non_miqdor_4 }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
