@@ -432,8 +432,8 @@ def driver_payments():
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
     
-    # Status filter
-    status = request.args.get('status', '')
+    # Status filter (default: tolandi)
+    status = request.args.get('status', 'tolandi')
     
     # Query
     query = DriverPayment.query.filter(

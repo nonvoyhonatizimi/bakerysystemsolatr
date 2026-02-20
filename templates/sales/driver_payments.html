@@ -24,9 +24,7 @@
             <div class="col-md-3">
                 <label for="status" class="form-label">Status</label>
                 <select class="form-select" id="status" name="status">
-                    <option value="">Barcha</option>
-                    <option value="kutilmoqda" {% if status == 'kutilmoqda' %}selected{% endif %}>Kutilmoqda</option>
-                    <option value="tolandi" {% if status == 'tolandi' %}selected{% endif %}>To'landi</option>
+                    <option value="tolandi" {% if status != 'kutilmoqda' %}selected{% endif %}>To'langan</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -38,15 +36,7 @@
 
 <!-- Jami hisoblar -->
 <div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card bg-warning text-dark">
-            <div class="card-body text-center">
-                <h5>Kutilmoqda</h5>
-                <h3>{{ "{:,.0f}".format(jami_kutilmoqda) }} so'm</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="card bg-success text-white">
             <div class="card-body text-center">
                 <h5>To'langan</h5>
@@ -72,13 +62,13 @@
                         <th>Non turi</th>
                         <th>Miqdor</th>
                         <th>Summa</th>
-                        <th>Status</th>
-                        <th>Amallar</th>
+                        <th>To'langan vaqt</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in payments %}
-                    <tr class="{% if p.status == 'tolandi' %}table-success{% else %}table-warning{% endif %}">
+                    {% if p.status == 'tolandi' %}
+                    <tr class="table-success">
                         <td>
                             {{ p.created_at.strftime('%d.%m.%Y') }}<br>
                             <small class="text-muted">{{ p.created_at.strftime('%H:%M') }}</small>
@@ -89,26 +79,14 @@
                         <td>{{ p.sale.miqdor if p.sale else 'Noma\'lum' }} dona</td>
                         <td><strong>{{ "{:,.0f}".format(p.summa) }} so'm</strong></td>
                         <td>
-                            {% if p.status == 'kutilmoqda' %}
-                                <span class="badge bg-warning text-dark">Kutilmoqda</span>
-                            {% else %}
-                                <span class="badge bg-success">To'landi</span><br>
-                                <small class="text-muted">{{ p.collected_at.strftime('%H:%M') if p.collected_at else '' }}</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if p.status == 'kutilmoqda' %}
-                            <a href="{{ url_for('sales.collect_payment', id=p.id) }}" class="btn btn-sm btn-success" onclick="return confirm('Haqiqatan ham to\'langan deb belgilamoqchimisiz?')">
-                                <i class="fas fa-check"></i> To'landi
-                            </a>
-                            {% else %}
-                                <span class="text-muted"><i class="fas fa-check-circle"></i></span>
-                            {% endif %}
+                            <span class="badge bg-success">To'landi</span><br>
+                            <small class="text-muted">{{ p.collected_at.strftime('%d.%m.%Y %H:%M') if p.collected_at else '' }}</small>
                         </td>
                     </tr>
+                    {% endif %}
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">To'lovlar topilmadi</td>
+                        <td colspan="7" class="text-center text-muted py-4">To'lovlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>
