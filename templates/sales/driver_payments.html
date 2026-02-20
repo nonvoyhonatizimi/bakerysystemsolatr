@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Haydovchi to'lovlari - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Haydovchi to'lovlari{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="date" class="form-label">Sana</label>
+                <input type="date" class="form-control" id="date" name="date" value="{{ filter_date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="driver_id" class="form-label">Haydovchi</label>
+                <select class="form-select" id="driver_id" name="driver_id">
+                    <option value="">Barcha</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}" {% if driver_id == d.id|string %}selected{% endif %}>{{ d.ism }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Barcha</option>
+                    <option value="kutilmoqda" {% if status == 'kutilmoqda' %}selected{% endif %}>Kutilmoqda</option>
+                    <option value="tolandi" {% if status == 'tolandi' %}selected{% endif %}>To'landi</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Jami hisoblar -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h5>Kutilmoqda</h5>
+                <h3>{{ "{:,.0f}".format(jami_kutilmoqda) }} so'm</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5>To'langan</h5>
+                <h3>{{ "{:,.0f}".format(jami_tolandan) }} so'm</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- To'lovlar jadvali -->
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">To'lovlar ro'yxati</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana/Soat</th>
+                        <th>Haydovchi</th>
+                        <th>Mijoz</th>
+                        <th>Non turi</th>
+                        <th>Miqdor</th>
+                        <th>Summa</th>
+                        <th>Status</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr class="{% if p.status == 'tolandi' %}table-success{% else %}table-warning{% endif %}">
+                        <td>
+                            {{ p.created_at.strftime('%d.%m.%Y') }}<br>
+                            <small class="text-muted">{{ p.created_at.strftime('%H:%M') }}</small>
+                        </td>
+                        <td>{{ p.driver.ism if p.driver else 'Noma\'lum' }}</td>
+                        <td>{{ p.mijoz.nomi if p.mijoz else 'Noma\'lum' }}</td>
+                        <td>{{ p.sale.non_turi if p.sale else 'Noma\'lum' }}</td>
+                        <td>{{ p.sale.miqdor if p.sale else 'Noma\'lum' }} dona</td>
+                        <td><strong>{{ "{:,.0f}".format(p.summa) }} so'm</strong></td>
+                        <td>
+                            {% if p.status == 'kutilmoqda' %}
+                                <span class="badge bg-warning text-dark">Kutilmoqda</span>
+                            {% else %}
+                                <span class="badge bg-success">To'landi</span><br>
+                                <small class="text-muted">{{ p.collected_at.strftime('%H:%M') if p.collected_at else '' }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.status == 'kutilmoqda' %}
+                            <a href="{{ url_for('sales.collect_payment', id=p.id) }}" class="btn btn-sm btn-success" onclick="return confirm('Haqiqatan ham to\'langan deb belgilamoqchimisiz?')">
+                                <i class="fas fa-check"></i> To'landi
+                            </a>
+                            {% else %}
+                                <span class="text-muted"><i class="fas fa-check-circle"></i></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">To'lovlar topilmadi</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

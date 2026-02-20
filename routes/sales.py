@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee
+from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee, DriverPayment
 from datetime import datetime
 import requests
 import json
@@ -217,6 +217,18 @@ def add_sale():
         db.session.add(new_sale)
         db.session.commit()
         
+        # Avtomatik Haydovchi to'lovi yaratish (agar qarz bo'lsa)
+        if qarz > 0 and current_user.employee_id:
+            driver_payment = DriverPayment(
+                sale_id=new_sale.id,
+                driver_id=current_user.employee_id,
+                mijoz_id=mijoz_id,
+                summa=qarz,
+                status='kutilmoqda'
+            )
+            db.session.add(driver_payment)
+            db.session.commit()
+        
         # Send Telegram notification
         sale_info = {
             "sotuv_id": new_sale.id,
@@ -407,3 +419,82 @@ def delete_transfer(id):
     db.session.commit()
     flash('O\'tkazish o\'chirildi!', 'success')
     return redirect(url_for('sales.list_transfers'))
+
+# ========== HAYDOVCHI TO'LOVLARI ==========
+@sales_bp.route('/driver-payments')
+@login_required
+def driver_payments():
+    """Haydovchi to'lovlari ro'yxati"""
+    # Sana filter
+    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    
+    # Haydovchi filter
+    driver_id = request.args.get('driver_id', '')
+    
+    # Status filter
+    status = request.args.get('status', '')
+    
+    # Query
+    query = DriverPayment.query.filter(
+        db.func.date(DriverPayment.created_at) == filter_date
+    )
+    
+    if driver_id:
+        query = query.filter(DriverPayment.driver_id == driver_id)
+    
+    if status:
+        query = query.filter(DriverPayment.status == status)
+    
+    payments = query.order_by(DriverPayment.created_at.desc()).all()
+    
+    # Barcha haydovchilar (filter uchun)
+    drivers = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    
+    # Jami hisoblar
+    jami_kutilmoqda = sum([p.summa for p in payments if p.status == 'kutilmoqda'])
+    jami_tolandan = sum([p.summa for p in payments if p.status == 'tolandi'])
+    
+    return render_template('sales/driver_payments.html',
+                         payments=payments,
+                         drivers=drivers,
+                         filter_date=filter_date,
+                         driver_id=driver_id,
+                         status=status,
+                         jami_kutilmoqda=jami_kutilmoqda,
+                         jami_tolandan=jami_tolandan)
+
+@sales_bp.route('/driver-payment/collect/<int:id>')
+@login_required
+def collect_payment(id):
+    """Haydovchi to'lovini 'to'landi' deb belgilash"""
+    payment = DriverPayment.query.get_or_404(id)
+    
+    if payment.status == 'tolandi':
+        flash('Bu to\'lov allaqachon to\'langan!', 'warning')
+        return redirect(url_for('sales.driver_payments'))
+    
+    # Status ni yangilash
+    payment.status = 'tolandi'
+    payment.collected_at = datetime.now()
+    
+    # Mijoz qarzidan ayrish
+    customer = Customer.query.get(payment.mijoz_id)
+    if customer:
+        customer.jami_qarz -= payment.summa
+    
+    # Kassaga qo'shish
+    last_cash = Cash.query.order_by(Cash.id.desc()).first()
+    current_balance = last_cash.balans if last_cash else 0
+    new_cash = Cash(
+        sana=datetime.now().date(),
+        kirim=payment.summa,
+        balans=current_balance + payment.summa,
+        izoh=f"Haydovchi to'lovi: {payment.driver.ism if payment.driver else 'Noma`lum'} - {customer.nomi if customer else 'Noma`lum'}",
+        turi='Haydovchi to\'lovi'
+    )
+    db.session.add(new_cash)
+    db.session.commit()
+    
+    flash(f'To\'lov to\'landi: {payment.summa:,.0f} so\'m', 'success')
+    return redirect(url_for('sales.driver_payments'))

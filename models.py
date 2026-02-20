@@ -172,3 +172,18 @@ class BreadTransfer(db.Model):
     
     from_employee = db.relationship('Employee', foreign_keys=[from_xodim_id], backref='transfers_sent')
     to_employee = db.relationship('Employee', foreign_keys=[to_xodim_id], backref='transfers_received')
+
+class DriverPayment(db.Model):
+    __tablename__ = 'haydovchi_tolovlari'
+    id = db.Column(db.Integer, primary_key=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey('sotuvlar.id'), nullable=False)
+    driver_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'), nullable=False)
+    mijoz_id = db.Column(db.Integer, db.ForeignKey('mijozlar.id'), nullable=False)
+    summa = db.Column(db.Numeric(10, 2), nullable=False)
+    status = db.Column(db.String(20), default='kutilmoqda')  # kutilmoqda, tolandi
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    collected_at = db.Column(db.DateTime, nullable=True)
+    
+    sale = db.relationship('Sale', backref='driver_payment')
+    driver = db.relationship('Employee', backref='payments')
+    mijoz = db.relationship('Customer', backref='driver_payments')
