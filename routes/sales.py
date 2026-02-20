@@ -117,7 +117,11 @@ def list_sales():
     sales = Sale.query.order_by(Sale.sana.desc()).all()
     # Tandirchi o'tkazishlarini ham olish
     tandir_transfers = BreadTransfer.query.filter_by(from_turi='tandirchi').order_by(BreadTransfer.created_at.desc()).all()
-    return render_template('sales/list.html', sales=sales, tandir_transfers=tandir_transfers)
+    # Haydovchi o'tkazishlarini faqat admin uchun olish
+    haydovchi_transfers = None
+    if current_user.rol == 'admin':
+        haydovchi_transfers = BreadTransfer.query.filter_by(from_turi='haydovchi').order_by(BreadTransfer.created_at.desc()).all()
+    return render_template('sales/list.html', sales=sales, tandir_transfers=tandir_transfers, haydovchi_transfers=haydovchi_transfers)
 
 @sales_bp.route('/pay-debt/<int:sale_id>', methods=['GET', 'POST'])
 @login_required

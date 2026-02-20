@@ -72,6 +72,55 @@
             </table>
         </div>
         
+        {% if haydovchi_transfers and current_user.rol == 'admin' %}
+        <hr class="my-4">
+        <h5 class="mb-3">Haydovchi o'tkazishlari (Smena almashuvi)</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana/Soat</th>
+                        <th>Kimdan</th>
+                        <th>Kimga</th>
+                        <th>Non turlari</th>
+                        <th>Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in haydovchi_transfers %}
+                    <tr class="table-info">
+                        <td>{{ t.created_at.strftime('%d.%m.%Y %H:%M') if t.created_at else t.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ t.from_employee.ism }}</td>
+                        <td>{{ t.to_employee.ism }}</td>
+                        <td>
+                            {% if t.non_turi_1 and t.non_miqdor_1 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_1 }}: {{ t.non_miqdor_1 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_2 and t.non_miqdor_2 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_2 }}: {{ t.non_miqdor_2 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_3 and t.non_miqdor_3 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_3 }}: {{ t.non_miqdor_3 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_4 and t.non_miqdor_4 > 0 %}
+                                <span class="badge bg-info me-1">{{ t.non_turi_4 }}: {{ t.non_miqdor_4 }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('sales.edit_transfer', id=t.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('sales.delete_transfer', id=t.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
         {% if tandir_transfers %}
         <hr class="my-4">
         <h5 class="mb-3">Tandirchi o'tkazishlari</h5>
@@ -83,6 +132,9 @@
                         <th>Tandirchi</th>
                         <th>Kimga</th>
                         <th>Non turlari</th>
+                        {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim == 'Tandirchi') %}
+                        <th>Amallar</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -105,6 +157,16 @@
                                 <span class="badge bg-info me-1">{{ t.non_turi_4 }}: {{ t.non_miqdor_4 }}</span>
                             {% endif %}
                         </td>
+                        {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim == 'Tandirchi') %}
+                        <td>
+                            <a href="{{ url_for('production.edit_oven_transfer', id=t.id) }}" class="btn btn-sm btn-warning me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('production.delete_oven_transfer', id=t.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

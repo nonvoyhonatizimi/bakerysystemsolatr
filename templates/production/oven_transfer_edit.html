@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Tandirchi o'tkazishini tahrirlash - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Tandirchi → Haydovchi o'tkazishini tahrirlash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="from_xodim_id" class="form-label">Kimdan (Tandirchi)</label>
+                            <select class="form-select" id="from_xodim_id" name="from_xodim_id" required>
+                                {% for t in tandirchilar %}
+                                <option value="{{ t.id }}" {% if t.id == transfer.from_xodim_id %}selected{% endif %}>{{ t.ism }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="to_xodim_id" class="form-label">Kimga (Haydovchi)</label>
+                            <select class="form-select" id="to_xodim_id" name="to_xodim_id" required>
+                                {% for h in haydovchilar %}
+                                <option value="{{ h.id }}" {% if h.id == transfer.to_xodim_id %}selected{% endif %}>{{ h.ism }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h6 class="mb-3">O'tkazilayotgan nonlar:</h6>
+                    
+                    {% for i in range(1, 5) %}
+                    {% set non_turi = transfer['non_turi_' ~ i] %}
+                    {% set non_miqdor = transfer['non_miqdor_' ~ i] %}
+                    <div class="row border rounded p-2 mb-2 bg-light">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Non turi #{{ i }}</label>
+                                <select class="form-select" name="non_turi_{{ i }}">
+                                    <option value="">Tanlanmagan</option>
+                                    {% for nt in non_turlari %}
+                                    <option value="{{ nt.nomi }}" {% if nt.nomi == non_turi %}selected{% endif %}>{{ nt.nomi }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="form-label">Miqdor (dona)</label>
+                                <input type="number" class="form-control" name="non_miqdor_{{ i }}" min="0" value="{{ non_miqdor }}">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Saqlash</button>
+                        <a href="{{ url_for('production.list_oven') }}" class="btn btn-light">Bekor qilish</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

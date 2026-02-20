@@ -340,3 +340,56 @@ def add_un_turi():
         return redirect(url_for('production.un_turlari_list'))
     
     return render_template('production/un_turi_add.html')
+
+# ========== TANDIRCHI O'TKAZISH TAHIRLASH/O'CHIRISH ==========
+@production_bp.route('/oven/transfer/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_oven_transfer(id):
+    """Tandirchi o'tkazishini tahrirlash (admin va tandirchi)"""
+    transfer = BreadTransfer.query.get_or_404(id)
+    
+    # Faqat admin yoki o'zi yaratgan tandirchi tahrirlay oladi
+    if current_user.rol != 'admin' and (not current_user.employee or current_user.employee.id != transfer.from_xodim_id):
+        flash('Bu o\'tkazishni tahrirlash huquqingiz yo\'q!', 'error')
+        return redirect(url_for('production.list_oven'))
+    
+    if request.method == 'POST':
+        transfer.from_xodim_id = request.form.get('from_xodim_id')
+        transfer.to_xodim_id = request.form.get('to_xodim_id')
+        
+        # 4 ta non turini yangilash
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '')
+            non_miqdor = int(request.form.get(f'non_miqdor_{i}', 0) or 0)
+            setattr(transfer, f'non_turi_{i}', non_turi if non_turi else None)
+            setattr(transfer, f'non_miqdor_{i}', non_miqdor)
+        
+        db.session.commit()
+        flash('O\'tkazish ma\'lumoti yangilandi!', 'success')
+        return redirect(url_for('production.list_oven'))
+    
+    tandirchilar = Employee.query.filter_by(lavozim='Tandirchi', status='faol').all()
+    haydovchilar = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
+    
+    return render_template('production/oven_transfer_edit.html',
+                         transfer=transfer,
+                         tandirchilar=tandirchilar,
+                         haydovchilar=haydovchilar,
+                         non_turlari=non_turlari)
+
+@production_bp.route('/oven/transfer/delete/<int:id>')
+@login_required
+def delete_oven_transfer(id):
+    """Tandirchi o'tkazishini o'chirish (admin va tandirchi)"""
+    transfer = BreadTransfer.query.get_or_404(id)
+    
+    # Faqat admin yoki o'zi yaratgan tandirchi o'chira oladi
+    if current_user.rol != 'admin' and (not current_user.employee or current_user.employee.id != transfer.from_xodim_id):
+        flash('Bu o\'tkazishni o\'chirish huquqingiz yo\'q!', 'error')
+        return redirect(url_for('production.list_oven'))
+    
+    db.session.delete(transfer)
+    db.session.commit()
+    flash('O\'tkazish o\'chirildi!', 'success')
+    return redirect(url_for('production.list_oven'))
