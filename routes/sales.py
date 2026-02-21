@@ -78,17 +78,17 @@ def send_telegram_notification(customer_name, sale_data):
     
     # Format message
     message = f"""
-🍞 YANGI SOTUV
+YANGI SOTUV
 
-📦 Mijoz: {sale_data['mijoz']}
-📅 Sana: {sale_data['sana']} {sale_data['vaqt']}
-🥖 Non turi: {sale_data['non_turi']}
-📊 Miqdor: {sale_data['miqdor']} dona
-💰 Narx: {sale_data['narx_dona']:,.0f} so'm
-💵 Jami: {sale_data['jami_summa']:,.0f} so'm
-[OK] To'landi: {sale_data['tolandi']:,.0f} so'm
-❗ Qarz: {sale_data['qarz']:,.0f} so'm
-👤 Xodim: {sale_data['xodim']}
+Mijoz: {sale_data['mijoz']}
+Sana: {sale_data['sana']} {sale_data['vaqt']}
+Non turi: {sale_data['non_turi']}
+Miqdor: {sale_data['miqdor']} dona
+Narx: {sale_data['narx_dona']:,.0f} so'm
+Jami: {sale_data['jami_summa']:,.0f} so'm
+To'landi: {sale_data['tolandi']:,.0f} so'm
+Qarz: {sale_data['qarz']:,.0f} so'm
+Xodim: {sale_data['xodim']}
 """
     
     # Send to Telegram
@@ -105,10 +105,10 @@ def send_telegram_notification(customer_name, sale_data):
             print(f"[OK] Telegram sent to {customer_name}: {response.status_code}")
             return True
         else:
-            print(f"❌ Telegram error for {customer_name}: {response.status_code} - {response.text}")
+            print(f"[XATO] Telegram error for {customer_name}: {response.status_code} - {response.text}")
             return False
     except Exception as e:
-        print(f"❌ Telegram exception: {e}")
+        print(f"[XATO] Telegram exception: {e}")
         return False
 
 @sales_bp.route('/')
@@ -282,7 +282,14 @@ def add_sale():
             "qarz": float(qarz),
             "xodim": current_user.ism
         }
-        send_telegram_notification(customer.nomi if customer else "Noma'lum", sale_info)
+        # Telegram xabarini alohida thread da yuborish (tezroq bo'lishi uchun)
+        import threading
+        telegram_thread = threading.Thread(
+            target=send_telegram_notification,
+            args=(customer.nomi if customer else "Noma'lum", sale_info)
+        )
+        telegram_thread.daemon = True
+        telegram_thread.start()
         
         flash('Sotuv muvaffaqiyatli amalga oshirildi')
         return redirect(url_for('sales.list_sales'))

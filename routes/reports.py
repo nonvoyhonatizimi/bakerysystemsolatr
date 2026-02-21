@@ -133,21 +133,21 @@ def send_debt_notification(customer_id):
     
     # Build message
     message = f"""
-🔴 QARZ ESLATMASI
+QARZ ESLATMASI
 
-📦 Mijoz: {customer.nomi}
-💰 Umumiy qarz: {float(customer.jami_qarz):,.0f} so'm
+Mijoz: {customer.nomi}
+Umumiy qarz: {float(customer.jami_qarz):,.0f} so'm
 
-📊 Qarz tafsiloti:
+Qarz tafsiloti:
 """
     
     for item in sales_breakdown:
-        message += f"\n🥖 {item.non_turi}: {item.total_miqdor} dona"
+        message += f"\n{item.non_turi}: {item.total_miqdor} dona"
         message += f"\n   Jami: {float(item.total_summa):,.0f} so'm"
         message += f"\n   To'landi: {float(item.total_tolandi):,.0f} so'm"
         message += f"\n   Qarz: {float(item.total_qarz):,.0f} so'm\n"
     
-    message += f"\n⚠️ Iltimos, kassa qiling!"
+    message += f"\nIltimos, kassa qiling!"
     
     # Send to Telegram
     try:
@@ -162,9 +162,9 @@ def send_debt_notification(customer_id):
         if response.status_code == 200:
             flash(f'Xabar yuborildi: {customer.nomi}')
         else:
-            flash(f'❌ Xatolik: {response.status_code} - {response.text}')
+            flash(f'Xatolik: {response.status_code} - {response.text}')
     except Exception as e:
-        flash(f'❌ Xatolik: {e}')
+        flash(f'Xatolik: {e}')
     
     return redirect(url_for('reports.customer_debts'))
 
