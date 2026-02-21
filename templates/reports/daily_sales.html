@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Bugungi sotuvlar - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Bugungi sotuvlar hisoboti{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="date" class="form-label">Sana</label>
+                <input type="date" class="form-control" id="date" name="date" value="{{ filter_date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-md-4">
+                <label for="driver_id" class="form-label">Haydovchi</label>
+                <select class="form-select" id="driver_id" name="driver_id">
+                    <option value="">Barcha haydovchilar</option>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}" {% if driver_id == d.id|string %}selected{% endif %}>{{ d.ism }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">Ko'rish</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Jami hisobot -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h5>Jami sotuvlar</h5>
+                <h3>{{ jami_sotuvlar }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h5>Qarzga</h5>
+                <h3>{{ "{:,.0f}".format(jami_qarz) }} so'm</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5>Naqt</h5>
+                <h3>{{ "{:,.0f}".format(jami_naqt) }} so'm</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h5>Jami</h5>
+                <h3>{{ "{:,.0f}".format(jami_qarz + jami_naqt) }} so'm</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Non turlari bo'yicha -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Non turlari bo'yicha sotuv</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for turi, data in non_turlari.items() %}
+            <div class="col-md-3 mb-3">
+                <div class="border rounded p-3 bg-light">
+                    <h6 class="mb-1">{{ turi }}</h6>
+                    <p class="mb-0"><strong>{{ data.miqdor }} dona</strong></p>
+                    <small class="text-muted">{{ "{:,.0f}".format(data.summa) }} so'm</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- O'tkazishlar -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Tandirchidan olingan nonlar</h5>
+            </div>
+            <div class="card-body">
+                {% if tandirchi_transfers %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tandirchi</th>
+                                <th>Kimga</th>
+                                <th>Nonlar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in tandirchi_transfers %}
+                            <tr>
+                                <td>{{ t.from_employee.ism }}</td>
+                                <td>{{ t.to_employee.ism }}</td>
+                                <td>
+                                    {% for i in range(1, 5) %}
+                                        {% set turi = t['non_turi_' ~ i] %}
+                                        {% set miqdor = t['non_miqdor_' ~ i] %}
+                                        {% if turi and miqdor > 0 %}
+                                            <span class="badge bg-info">{{ turi }}: {{ miqdor }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">O'tkazishlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Haydovchidan olingan nonlar</h5>
+            </div>
+            <div class="card-body">
+                {% if haydovchi_transfers %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Kimdan</th>
+                                <th>Kimga</th>
+                                <th>Nonlar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in haydovchi_transfers %}
+                            <tr>
+                                <td>{{ t.from_employee.ism }}</td>
+                                <td>{{ t.to_employee.ism }}</td>
+                                <td>
+                                    {% for i in range(1, 5) %}
+                                        {% set turi = t['non_turi_' ~ i] %}
+                                        {% set miqdor = t['non_miqdor_' ~ i] %}
+                                        {% if turi and miqdor > 0 %}
+                                            <span class="badge bg-info">{{ turi }}: {{ miqdor }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">O'tkazishlar yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sotuvlar bo'yicha -->
+{% for driver, data in driver_sales.items() %}
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">{{ driver }} - Sotuvlar</h5>
+    </div>
+    <div class="card-body">
+        <!-- Qarzga sotuvlar -->
+        {% if data.qarz_sotuvlar %}
+        <h6 class="text-warning mb-3">Qarzga sotuvlar:</h6>
+        <div class="table-responsive mb-4">
+            <table class="table table-sm table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mijoz</th>
+                        <th>Non turi</th>
+                        <th>Miqdor</th>
+                        <th>Summa</th>
+                        <th>Qarz</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in data.qarz_sotuvlar %}
+                    <tr>
+                        <td>{{ sale.mijoz.nomi if sale.mijoz else 'Noma\'lum' }}</td>
+                        <td>{{ sale.non_turi }}</td>
+                        <td>{{ sale.miqdor }} dona</td>
+                        <td>{{ "{:,.0f}".format(sale.jami_summa) }} so'm</td>
+                        <td class="text-danger">{{ "{:,.0f}".format(sale.qoldiq_qarz) }} so'm</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Naqt sotuvlar -->
+        {% if data.naqt_sotuvlar %}
+        <h6 class="text-success mb-3">Naqt sotuvlar:</h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mijoz</th>
+                        <th>Non turi</th>
+                        <th>Miqdor</th>
+                        <th>Summa</th>
+                        <th>To'landi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in data.naqt_sotuvlar %}
+                    <tr>
+                        <td>{{ sale.mijoz.nomi if sale.mijoz else 'Noma\'lum' }}</td>
+                        <td>{{ sale.non_turi }}</td>
+                        <td>{{ sale.miqdor }} dona</td>
+                        <td>{{ "{:,.0f}".format(sale.jami_summa) }} so'm</td>
+                        <td class="text-success">{{ "{:,.0f}".format(sale.tolandi) }} so'm</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Jami -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="alert alert-warning mb-0">
+                    <strong>Jami qarz:</strong> {{ "{:,.0f}".format(data.jami_qarz) }} so'm
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-success mb-0">
+                    <strong>Jami naqt:</strong> {{ "{:,.0f}".format(data.jami_naqt) }} so'm
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

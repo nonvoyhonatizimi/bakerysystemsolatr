@@ -315,3 +315,82 @@ def daily_transfers():
                          haydovchi_transfers=haydovchi_transfers,
                          tandirchi_transfers=tandirchi_transfers,
                          jami_nonlar=jami_nonlar)
+
+@reports_bp.route('/daily-sales')
+@login_required
+def daily_sales():
+    """Bugungi sotuvlar - haydovchi hisoboti"""
+    # Sana filter
+    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    
+    # Haydovchi filter
+    driver_id = request.args.get('driver_id', '')
+    
+    # Barcha haydovchilar
+    drivers = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    
+    # Sotuvlarni olish
+    query = Sale.query.filter(Sale.sana == filter_date)
+    if driver_id:
+        # Agar haydovchi tanlangan bo'lsa, faqat o'sha haydovchining sotuvlari
+        # (Hozircha barcha sotuvlarni olamiz, keyin filtrlaymiz)
+        pass
+    
+    sales = query.order_by(Sale.sana.desc()).all()
+    
+    # Haydovchi bo'yicha guruhlash
+    driver_sales = {}
+    for sale in sales:
+        # Bu yerda haydovchi aniqlanishi kerak (hozircha mijoz nomidan)
+        driver_name = "Admin"  # Vaqtinchalik
+        if driver_name not in driver_sales:
+            driver_sales[driver_name] = {
+                'qarz_sotuvlar': [],
+                'naqt_sotuvlar': [],
+                'jami_qarz': 0,
+                'jami_naqt': 0
+            }
+        
+        if sale.qoldiq_qarz > 0:
+            driver_sales[driver_name]['qarz_sotuvlar'].append(sale)
+            driver_sales[driver_name]['jami_qarz'] += sale.qoldiq_qarz
+        else:
+            driver_sales[driver_name]['naqt_sotuvlar'].append(sale)
+            driver_sales[driver_name]['jami_naqt'] += sale.tolandi
+    
+    # O'tkazishlarni olish
+    tandirchi_transfers = BreadTransfer.query.filter(
+        BreadTransfer.from_turi == 'tandirchi',
+        BreadTransfer.sana == filter_date
+    ).all()
+    
+    haydovchi_transfers = BreadTransfer.query.filter(
+        BreadTransfer.from_turi == 'haydovchi',
+        BreadTransfer.sana == filter_date
+    ).all()
+    
+    # Jami hisobot
+    jami_sotuvlar = len(sales)
+    jami_qarz = sum([s.qoldiq_qarz for s in sales])
+    jami_naqt = sum([s.tolandi for s in sales])
+    
+    # Non turlari bo'yicha
+    non_turlari = {}
+    for sale in sales:
+        if sale.non_turi not in non_turlari:
+            non_turlari[sale.non_turi] = {'miqdor': 0, 'summa': 0}
+        non_turlari[sale.non_turi]['miqdor'] += sale.miqdor
+        non_turlari[sale.non_turi]['summa'] += sale.jami_summa
+    
+    return render_template('reports/daily_sales.html',
+                         filter_date=filter_date,
+                         driver_id=driver_id,
+                         drivers=drivers,
+                         driver_sales=driver_sales,
+                         tandirchi_transfers=tandirchi_transfers,
+                         haydovchi_transfers=haydovchi_transfers,
+                         jami_sotuvlar=jami_sotuvlar,
+                         jami_qarz=jami_qarz,
+                         jami_naqt=jami_naqt,
+                         non_turlari=non_turlari)
