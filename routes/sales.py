@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee, DriverPayment, uz_datetime
+from models import db, Sale, Customer, Cash, BreadType, BreadTransfer, Employee, DriverPayment, DriverInventory, uz_datetime
 from datetime import datetime
 import requests
 import json
@@ -198,6 +198,18 @@ def add_sale():
         jami = miqdor * narx
         qarz = jami - tolandi
         
+        # Inventory tekshirish - haydovchida yetarli non bormi?
+        if current_user.employee_id:
+            inventory = DriverInventory.query.filter_by(
+                driver_id=current_user.employee_id,
+                non_turi=non_turi,
+                sana=datetime.now().date()
+            ).first()
+            
+            if not inventory or inventory.miqdor < miqdor:
+                flash(f'Sizda yetarli {non_turi} yo\'q! Avval non oling.', 'error')
+                return redirect(url_for('sales.add_sale'))
+        
         new_sale = Sale(
             sana=datetime.now().date(),
             mijoz_id=mijoz_id,
@@ -230,6 +242,19 @@ def add_sale():
             
         db.session.add(new_sale)
         db.session.commit()
+        
+        # Inventorydan non ayirish
+        if current_user.employee_id:
+            inventory = DriverInventory.query.filter_by(
+                driver_id=current_user.employee_id,
+                non_turi=non_turi,
+                sana=datetime.now().date()
+            ).first()
+            
+            if inventory:
+                inventory.miqdor -= miqdor
+                inventory.updated_at = uz_datetime()
+                db.session.commit()
         
         # Avtomatik Haydovchi to'lovi yaratish (agar qarz bo'lsa)
         if qarz > 0:
@@ -382,6 +407,40 @@ def add_transfer():
         db.session.add(new_transfer)
         db.session.commit()
         
+        # Kimdan (from) inventorydan ayirish va kimga (to) qo'shish
+        for i, (turi, miqdor) in enumerate(non_turlar[:4], 1):
+            if turi and miqdor > 0:
+                # Kimdan ayirish
+                from_inventory = DriverInventory.query.filter_by(
+                    driver_id=from_xodim_id,
+                    non_turi=turi,
+                    sana=datetime.now().date()
+                ).first()
+                
+                if from_inventory:
+                    from_inventory.miqdor -= miqdor
+                    from_inventory.updated_at = uz_datetime()
+                
+                # Kimga qo'shish
+                to_inventory = DriverInventory.query.filter_by(
+                    driver_id=to_xodim_id,
+                    non_turi=turi,
+                    sana=datetime.now().date()
+                ).first()
+                
+                if to_inventory:
+                    to_inventory.miqdor += miqdor
+                    to_inventory.updated_at = uz_datetime()
+                else:
+                    new_inventory = DriverInventory(
+                        driver_id=to_xodim_id,
+                        non_turi=turi,
+                        miqdor=miqdor,
+                        sana=datetime.now().date()
+                    )
+                    db.session.add(new_inventory)
+        
+        db.session.commit()
         flash('Non o\'tkazish muvaffaqiyatli saqlandi!', 'success')
         return redirect(url_for('sales.list_transfers'))
     

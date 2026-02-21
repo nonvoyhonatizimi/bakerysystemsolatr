@@ -194,3 +194,14 @@ class DriverPayment(db.Model):
     sale = db.relationship('Sale', backref='driver_payment')
     driver = db.relationship('Employee', backref='payments')
     mijoz = db.relationship('Customer', backref='driver_payments')
+
+class DriverInventory(db.Model):
+    __tablename__ = 'haydovchi_qoldigi'
+    id = db.Column(db.Integer, primary_key=True)
+    driver_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'), nullable=False)
+    non_turi = db.Column(db.String(100), nullable=False)
+    miqdor = db.Column(db.Integer, default=0)
+    sana = db.Column(db.Date, nullable=False)
+    updated_at = db.Column(db.DateTime, default=uz_datetime)
+    
+    driver = db.relationship('Employee', backref='inventory')

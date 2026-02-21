@@ -28,17 +28,37 @@
     </div>
 </div>
 
-<!-- Jami hisobot -->
+<!-- Non qoldig'i va sotuvlar -->
 <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col-md-12">
         <div class="card bg-primary text-white">
-            <div class="card-body text-center">
-                <h5>Jami sotuvlar</h5>
-                <h3>{{ jami_sotuvlar }}</h3>
+            <div class="card-header">
+                <h5 class="mb-0">Tarqatish uchun non qoldig'i</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for item in driver_inventory %}
+                    <div class="col-md-3 mb-3">
+                        <div class="border rounded p-3 bg-light text-dark">
+                            <h6 class="mb-1">{{ item.non_turi }}</h6>
+                            <h4 class="mb-0">{{ item.miqdor }} dona</h4>
+                            <small class="text-muted">{{ item.driver.ism if item.driver else 'Noma\'lum' }}</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <p class="text-center mb-0">Non qoldig'i yo'q. Avval non oling!</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+</div>
+
+<!-- Jami hisobot -->
+<div class="row mb-4">
+    <div class="col-md-4">
         <div class="card bg-warning text-dark">
             <div class="card-body text-center">
                 <h5>Qarzga</h5>
@@ -46,7 +66,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-success text-white">
             <div class="card-body text-center">
                 <h5>Naqt</h5>
@@ -54,7 +74,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-info text-white">
             <div class="card-body text-center">
                 <h5>Jami</h5>

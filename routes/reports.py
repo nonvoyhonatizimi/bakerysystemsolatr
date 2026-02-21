@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven, BreadTransfer, uz_datetime
+from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven, BreadTransfer, DriverInventory, uz_datetime
 from sqlalchemy import func
 from decimal import Decimal
 import requests
@@ -383,6 +383,11 @@ def daily_sales():
         non_turlari[sale.non_turi]['miqdor'] += sale.miqdor
         non_turlari[sale.non_turi]['summa'] += sale.jami_summa
     
+    # Haydovchi inventory (non qoldig'i)
+    driver_inventory = DriverInventory.query.filter(
+        DriverInventory.sana == filter_date
+    ).order_by(DriverInventory.driver_id, DriverInventory.non_turi).all()
+    
     return render_template('reports/daily_sales.html',
                          filter_date=filter_date,
                          driver_id=driver_id,
@@ -393,4 +398,5 @@ def daily_sales():
                          jami_sotuvlar=jami_sotuvlar,
                          jami_qarz=jami_qarz,
                          jami_naqt=jami_naqt,
-                         non_turlari=non_turlari)
+                         non_turlari=non_turlari,
+                         driver_inventory=driver_inventory)

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, uz_datetime
+from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, DriverInventory, uz_datetime
 from datetime import datetime, timedelta
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
@@ -229,6 +229,29 @@ def add_oven_transfer():
         db.session.add(new_transfer)
         db.session.commit()
         
+        # Haydovchi inventoryga non qo'shish
+        for i, (turi, miqdor) in enumerate(non_turlar[:4], 1):
+            if turi and miqdor > 0:
+                # Mavjud inventoryni tekshirish
+                inventory = DriverInventory.query.filter_by(
+                    driver_id=to_xodim_id,
+                    non_turi=turi,
+                    sana=datetime.now().date()
+                ).first()
+                
+                if inventory:
+                    inventory.miqdor += miqdor
+                    inventory.updated_at = uz_datetime()
+                else:
+                    new_inventory = DriverInventory(
+                        driver_id=to_xodim_id,
+                        non_turi=turi,
+                        miqdor=miqdor,
+                        sana=datetime.now().date()
+                    )
+                    db.session.add(new_inventory)
+        
+        db.session.commit()
         flash('Non o\'tkazish muvaffaqiyatli saqlandi!', 'success')
         return redirect(url_for('production.list_oven'))
     
