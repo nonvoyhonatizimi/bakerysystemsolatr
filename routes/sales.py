@@ -150,19 +150,25 @@ def pay_debt(sale_id):
         if customer:
             customer.jami_qarz -= payment
         
-        # Add to cash
-        last_cash = Cash.query.order_by(Cash.id.desc()).first()
-        current_balance = last_cash.balans if last_cash else Decimal('0')
-        new_cash = Cash(
-            sana=datetime.now().date(),
-            kirim=payment,
-            balans=current_balance + payment,
-            izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'}",
-            turi='Qarz to\'lovi'
-        )
-        db.session.add(new_cash)
+        # Sana tekshirish - bugunmi yoki oldingi kunmi
+        from datetime import date
+        today = date.today()
+        is_today = (sale.sana == today)
         
-        # Haydovchi to'lovini yangilash
+        # Agar bugun sotuv qilingan bo'lsa, kassaga qo'shish
+        if is_today:
+            last_cash = Cash.query.order_by(Cash.id.desc()).first()
+            current_balance = last_cash.balans if last_cash else Decimal('0')
+            new_cash = Cash(
+                sana=datetime.now().date(),
+                kirim=payment,
+                balans=current_balance + payment,
+                izoh=f"Qarz to'lovi: {customer.nomi if customer else 'Nomalum'} (bugun)",
+                turi='Qarz to\'lovi'
+            )
+            db.session.add(new_cash)
+        
+        # Haydovchi to'lovini yangilash (har qanday holatda)
         driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
         if driver_payment and driver_payment.status == 'kutilmoqda':
             driver_payment.status = 'tolandi'
