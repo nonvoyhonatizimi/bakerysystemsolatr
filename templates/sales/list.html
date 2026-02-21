@@ -38,7 +38,7 @@
                     {% for sale in sales %}
                     <tr>
                         <td>{{ sale.sana.strftime('%d.%m.%Y') }}</td>
-                        <td>{{ sale.customer.nomi }}</td>
+                        <td>{{ sale.customer.nomi if sale.customer else 'Noma\'lum' }}</td>
                         <td>{{ sale.non_turi }}</td>
                         <td>{{ sale.miqdor }}</td>
                         <td>{{ "{:,.0f}".format(sale.narx_dona) }}</td>
