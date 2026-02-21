@@ -160,7 +160,7 @@ def send_debt_notification(customer_id):
         response = requests.post(url, json=payload, timeout=5)
         
         if response.status_code == 200:
-            flash(f'✅ Xabar yuborildi: {customer.nomi}')
+            flash(f'Xabar yuborildi: {customer.nomi}')
         else:
             flash(f'❌ Xatolik: {response.status_code} - {response.text}')
     except Exception as e:

@@ -157,7 +157,7 @@ def init_db():
                 db.session.add(new_customer)
         
         db.session.commit()
-        print(f"✅ {len(customers_to_add)} ta mijoz bazaga qo'shildi")
+        print(f"[OK] {len(customers_to_add)} ta mijoz bazaga qo'shildi")
 
 # Initialize database on startup
 init_db()
@@ -201,7 +201,7 @@ if __name__ == '__main__':
                 db.session.add(new_customer)
         
         db.session.commit()
-        print(f"✅ {len(customers_to_add)} ta mijoz bazaga qo'shildi")
+        print(f"[OK] {len(customers_to_add)} ta mijoz bazaga qo'shildi")
     
     # Get port from environment variable (Render uses PORT)
     port = int(os.environ.get('PORT', 5000))

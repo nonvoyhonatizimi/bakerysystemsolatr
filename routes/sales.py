@@ -86,7 +86,7 @@ def send_telegram_notification(customer_name, sale_data):
 📊 Miqdor: {sale_data['miqdor']} dona
 💰 Narx: {sale_data['narx_dona']:,.0f} so'm
 💵 Jami: {sale_data['jami_summa']:,.0f} so'm
-✅ To'landi: {sale_data['tolandi']:,.0f} so'm
+[OK] To'landi: {sale_data['tolandi']:,.0f} so'm
 ❗ Qarz: {sale_data['qarz']:,.0f} so'm
 👤 Xodim: {sale_data['xodim']}
 """
@@ -102,7 +102,7 @@ def send_telegram_notification(customer_name, sale_data):
         response = requests.post(url, json=payload, timeout=5)
         
         if response.status_code == 200:
-            print(f"✅ Telegram sent to {customer_name}: {response.status_code}")
+            print(f"[OK] Telegram sent to {customer_name}: {response.status_code}")
             return True
         else:
             print(f"❌ Telegram error for {customer_name}: {response.status_code} - {response.text}")
