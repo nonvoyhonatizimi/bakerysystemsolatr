@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Mening nonlarim - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Menga o'tkazilgan nonlar{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Bugun o'zimga o'tkazilgan nonlar</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sana/Soat</th>
+                        <th>Kimdan</th>
+                        <th>Non turlari</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transfers %}
+                    <tr>
+                        <td>{{ t.created_at.strftime('%d.%m.%Y %H:%M') if t.created_at else t.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            {% if t.from_turi == 'tandirchi' %}
+                                <span class="badge bg-warning">Tandirchi: {{ t.from_employee.ism }}</span>
+                            {% else %}
+                                <span class="badge bg-info">Haydovchi: {{ t.from_employee.ism }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if t.non_turi_1 and t.non_miqdor_1 > 0 %}
+                                <span class="badge bg-primary me-1">{{ t.non_turi_1 }}: {{ t.non_miqdor_1 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_2 and t.non_miqdor_2 > 0 %}
+                                <span class="badge bg-primary me-1">{{ t.non_turi_2 }}: {{ t.non_miqdor_2 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_3 and t.non_miqdor_3 > 0 %}
+                                <span class="badge bg-primary me-1">{{ t.non_turi_3 }}: {{ t.non_miqdor_3 }}</span>
+                            {% endif %}
+                            {% if t.non_turi_4 and t.non_miqdor_4 > 0 %}
+                                <span class="badge bg-primary me-1">{{ t.non_turi_4 }}: {{ t.non_miqdor_4 }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">Bugun sizga non o'tkazilmagan</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
