@@ -256,11 +256,11 @@ def add_sale():
                 inventory.updated_at = uz_datetime()
                 db.session.commit()
         
-        # Avtomatik Haydovchi to'lovi yaratish (agar qarz bo'lsa)
-        if qarz > 0:
+        # Avtomatik Haydovchi to'lovi yaratish (agar qarz bo'lsa va haydovchi bo'lsa)
+        if qarz > 0 and current_user.employee_id:
             driver_payment = DriverPayment(
                 sale_id=new_sale.id,
-                driver_id=current_user.employee_id if current_user.employee_id else None,
+                driver_id=current_user.employee_id,
                 mijoz_id=mijoz_id,
                 summa=qarz,
                 status='kutilmoqda'
