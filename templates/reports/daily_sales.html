@@ -214,7 +214,7 @@
                 <tbody>
                     {% for sale in data.qarz_sotuvlar %}
                     <tr>
-                        <td>{{ sale.mijoz.nomi if sale.mijoz else 'Noma\'lum' }}</td>
+                        <td>{{ sale.customer.nomi if sale.customer else 'Noma\'lum' }}</td>
                         <td>{{ sale.non_turi }}</td>
                         <td>{{ sale.miqdor }} dona</td>
                         <td>{{ "{:,.0f}".format(sale.jami_summa) }} so'm</td>
@@ -243,7 +243,7 @@
                 <tbody>
                     {% for sale in data.naqt_sotuvlar %}
                     <tr>
-                        <td>{{ sale.mijoz.nomi if sale.mijoz else 'Noma\'lum' }}</td>
+                        <td>{{ sale.customer.nomi if sale.customer else 'Noma\'lum' }}</td>
                         <td>{{ sale.non_turi }}</td>
                         <td>{{ sale.miqdor }} dona</td>
                         <td>{{ "{:,.0f}".format(sale.jami_summa) }} so'm</td>
