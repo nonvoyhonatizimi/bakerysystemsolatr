@@ -470,6 +470,23 @@ def list_transfers():
     transfers = BreadTransfer.query.filter_by(from_turi='haydovchi').order_by(BreadTransfer.created_at.desc()).all()
     return render_template('sales/transfer_list.html', transfers=transfers)
 
+@sales_bp.route('/my-transfers')
+@login_required
+def my_transfers():
+    """Haydovchining o'ziga o'tkazilgan nonlari"""
+    # Faqat haydovchi o'ziga o'tkazilgan nonlarni ko'rsin
+    if not current_user.employee_id:
+        flash('Bu funksiya faqat haydovchilar uchun!', 'error')
+        return redirect(url_for('sales.list_sales'))
+    
+    # Bugun o'ziga o'tkazilgan nonlar (tandirchidan yoki boshqa haydovchidan)
+    transfers = BreadTransfer.query.filter(
+        BreadTransfer.to_xodim_id == current_user.employee_id,
+        BreadTransfer.sana == datetime.now().date()
+    ).order_by(BreadTransfer.created_at.desc()).all()
+    
+    return render_template('sales/my_transfers.html', transfers=transfers)
+
 @sales_bp.route('/transfer/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_transfer(id):
