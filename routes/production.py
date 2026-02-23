@@ -293,17 +293,34 @@ def edit_oven(id):
     
     if request.method == 'POST':
         oven.xodim_id = request.form.get('tandirchi_id')
-        oven.un_kg = int(request.form.get('un_kg', 0))
-        oven.kirdi = int(request.form.get('kirdi', 0))
-        oven.chiqdi = int(request.form.get('chiqdi', 0))
-        oven.brak = int(request.form.get('brak', 0))
+        
+        # Eski detallarni o'chirish
+        OvenDetail.query.filter_by(oven_id=oven.id).delete()
+        
+        # Yangi detallarni qo'shish
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '').strip()
+            chiqqan = int(request.form.get(f'chiqqan_{i}', 0) or 0)
+            brak = int(request.form.get(f'brak_{i}', 0) or 0)
+            
+            if non_turi and chiqqan > 0:
+                detail = OvenDetail(
+                    oven_id=oven.id,
+                    non_turi=non_turi,
+                    chiqqan=chiqqan,
+                    brak=brak,
+                    sof=chiqqan - brak
+                )
+                db.session.add(detail)
         
         db.session.commit()
         flash('Tandir ma\'lumoti yangilandi', 'success')
         return redirect(url_for('production.list_oven'))
     
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()
-    return render_template('production/oven_edit.html', oven=oven, employees=employees)
+    bread_types = BreadType.query.order_by(BreadType.nomi).all()
+    details = OvenDetail.query.filter_by(oven_id=oven.id).all()
+    return render_template('production/oven_edit.html', oven=oven, employees=employees, bread_types=bread_types, details=details)
 
 @production_bp.route('/oven/delete/<int:id>')
 @login_required
