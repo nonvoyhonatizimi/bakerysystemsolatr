@@ -4,6 +4,58 @@
 {% block header_title %}Tandir jurnali{% endblock %}
 
 {% block content %}
+<!-- Kelgan nonlar -->
+<div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Yasovchidan kelgan nonlar</h5>
+    </div>
+    <div class="card-body">
+        {% if ready_breads %}
+        <table class="table table-sm table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Soat</th>
+                    <th>Yasovchi</th>
+                    <th>Non turi</th>
+                    <th>Kelgan</th>
+                    <th>Brak</th>
+                    <th>Qabul</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rb in ready_breads %}
+                <tr>
+                    <td>{{ rb.created_at.strftime('%H:%M') }}</td>
+                    <td>{{ rb.yasovchi.ism if rb.yasovchi else 'Noma\'lum' }}</td>
+                    <td>{{ rb.non_turi }}</td>
+                    <td>{{ rb.miqdor }}</td>
+                    <td>
+                        {% if rb.status == 'tayyor' %}
+                        <form method="POST" action="{{ url_for('production.accept_bread', id=rb.id) }}" class="d-flex">
+                            <input type="number" name="brak" class="form-control form-control-sm me-2" style="width: 80px;" min="0" max="{{ rb.miqdor }}" value="0" required>
+                        </form>
+                        {% else %}
+                            <span class="text-danger">{{ rb.brak if rb.brak else 0 }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if rb.status == 'tayyor' %}
+                        <button type="submit" class="btn btn-success btn-sm">Qabul</button>
+                        </form>
+                        {% else %}
+                            <span class="badge bg-success">Qabul qilindi</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted text-center mb-0">Bugun non kelgan emas</p>
+        {% endif %}
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Tandir amallari ro'yxati</h5>

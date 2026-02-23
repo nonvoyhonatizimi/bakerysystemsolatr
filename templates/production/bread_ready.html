@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Non tayyor - Nonvoyhona Tizimi{% endblock %}
+{% block header_title %}Non tayyor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Yangi non tayyor</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="non_turi" class="form-label">Non turi</label>
+                        <select class="form-select" id="non_turi" name="non_turi" required>
+                            <option value="">Tanlang</option>
+                            {% for bt in non_turlari %}
+                            <option value="{{ bt.nomi }}">{{ bt.nomi }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="miqdor" class="form-label">Miqdor (dona)</label>
+                        <input type="number" class="form-control" id="miqdor" name="miqdor" required min="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Tayyor</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Bugun tayyorlangan</h5>
+            </div>
+            <div class="card-body">
+                {% if ready_breads %}
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Soat</th>
+                            <th>Non turi</th>
+                            <th>Miqdor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rb in ready_breads %}
+                        <tr>
+                            <td>{{ rb.created_at.strftime('%H:%M') }}</td>
+                            <td>{{ rb.non_turi }}</td>
+                            <td>{{ rb.miqdor }}</td>
+                            <td>
+                                {% if rb.status == 'tayyor' %}
+                                    <span class="badge bg-warning">Kutilmoqda</span>
+                                {% else %}
+                                    <span class="badge bg-success">Qabul qilindi</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted text-center">Bugun non tayyorlanmagan</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

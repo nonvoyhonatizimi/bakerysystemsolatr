@@ -149,6 +149,19 @@ class DayStatus(db.Model):
     yopilgan_vaqt = db.Column(db.DateTime)
     yopgan_admin = db.Column(db.String(100))
 
+class BreadReady(db.Model):
+    __tablename__ = 'non_tayyor'
+    id = db.Column(db.Integer, primary_key=True)
+    sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
+    yasovchi_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
+    non_turi = db.Column(db.String(100), nullable=False)
+    miqdor = db.Column(db.Integer, default=0)
+    brak = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(20), default='tayyor')  # 'tayyor', 'qabul_qilindi'
+    
+    yasovchi = db.relationship('Employee', backref='bread_ready')
+
 class UnQoldiq(db.Model):
     __tablename__ = 'un_qoldiq'
     id = db.Column(db.Integer, primary_key=True)
