@@ -29,11 +29,12 @@
                 </thead>
                 <tbody>
                     {% for group in grouped_breads %}
-                        {% for b in group.items %}
+                        {% set bread_list = group['items'] %}
+                        {% for b in bread_list %}
                         <tr>
                             {% if loop.first %}
-                            <td rowspan="{{ group.items|length }}">{{ (group.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if group.created_at else group.sana.strftime('%d.%m.%Y') }}</td>
-                            <td rowspan="{{ group.items|length }}">{{ b.employee.ism if b.employee else 'Noma\'lum' }}</td>
+                            <td rowspan="{{ bread_list|length }}">{{ (group['created_at'] + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if group['created_at'] else group['sana'].strftime('%d.%m.%Y') }}</td>
+                            <td rowspan="{{ bread_list|length }}">{{ b.employee.ism if b.employee else 'Noma\'lum' }}</td>
                             {% endif %}
                             <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
                             <td>{{ b.hamir_kg }}</td>
@@ -42,11 +43,11 @@
                             <td class="fw-bold text-success">{{ b.sof_non }}</td>
                             <td>{{ b.hamir_kg * 1500 }} so'm</td>
                             {% if loop.first %}
-                            <td rowspan="{{ group.items|length }}">
+                            <td rowspan="{{ bread_list|length }}">
                                 <a href="{{ url_for('production.edit_bread', id=b.id) }}" class="btn btn-sm btn-warning me-1">
                                     <i class="fas fa-edit"></i> Tahrirlash
                                 </a>
-                                <a href="{{ url_for('production.delete_bread', id=group.first_id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                <a href="{{ url_for('production.delete_bread', id=group['first_id']) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
                                     <i class="fas fa-trash"></i> O'chirish
                                 </a>
                             </td>
