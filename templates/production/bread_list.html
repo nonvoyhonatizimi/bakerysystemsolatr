@@ -28,25 +28,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for b in breads %}
-                    <tr>
-                        <td>{{ (b.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if b.created_at else b.sana.strftime('%d.%m.%Y') }}</td>
-                        <td>{{ b.employee.ism }}</td>
-                        <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
-                        <td>{{ b.hamir_kg }}</td>
-                        <td>{{ b.chiqqan_non }}</td>
-                        <td class="text-danger">{{ b.brak }}</td>
-                        <td class="fw-bold text-success">{{ b.sof_non }}</td>
-                        <td>{{ b.hamir_kg * 1500 }} so'm</td>
-                        <td>
-                            <a href="{{ url_for('production.edit_bread', id=b.id) }}" class="btn btn-sm btn-warning">
-                                <i class="fas fa-edit"></i> Tahrirlash
-                            </a>
-                        </td>
-                    </tr>
+                    {% for group in grouped_breads %}
+                        {% for b in group.items %}
+                        <tr>
+                            {% if loop.first %}
+                            <td rowspan="{{ group.items|length }}">{{ (group.created_at + timedelta(hours=5)).strftime('%d.%m.%Y %H:%M') if group.created_at else group.sana.strftime('%d.%m.%Y') }}</td>
+                            <td rowspan="{{ group.items|length }}">{{ b.employee.ism if b.employee else 'Noma\'lum' }}</td>
+                            {% endif %}
+                            <td><span class="badge bg-info">{{ b.non_turi }}</span></td>
+                            <td>{{ b.hamir_kg }}</td>
+                            <td>{{ b.chiqqan_non }}</td>
+                            <td class="text-danger">{{ b.brak }}</td>
+                            <td class="fw-bold text-success">{{ b.sof_non }}</td>
+                            <td>{{ b.hamir_kg * 1500 }} so'm</td>
+                            {% if loop.first %}
+                            <td rowspan="{{ group.items|length }}">
+                                <a href="{{ url_for('production.edit_bread', id=b.id) }}" class="btn btn-sm btn-warning me-1">
+                                    <i class="fas fa-edit"></i> Tahrirlash
+                                </a>
+                                <a href="{{ url_for('production.delete_bread', id=group.first_id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                    <i class="fas fa-trash"></i> O'chirish
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="9" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>

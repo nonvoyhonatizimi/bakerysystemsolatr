@@ -89,8 +89,23 @@ def delete_dough(id):
 @production_bp.route('/bread')
 @login_required
 def list_bread():
-    breads = BreadMaking.query.order_by(BreadMaking.sana.desc()).all()
-    return render_template('production/bread_list.html', breads=breads, timedelta=timedelta)
+    breads = BreadMaking.query.order_by(BreadMaking.created_at.desc()).all()
+    
+    # Bir xil vaqt va xodimga ega yozuvlarni guruhlash
+    grouped = {}
+    for b in breads:
+        # Guruh kaliti: created_at + xodim_id
+        key = f"{(b.created_at.strftime('%Y%m%d%H%M') if b.created_at else b.sana.strftime('%Y%m%d'))}_{b.xodim_id}"
+        if key not in grouped:
+            grouped[key] = {
+                'items': [],
+                'created_at': b.created_at,
+                'sana': b.sana,
+                'first_id': b.id
+            }
+        grouped[key]['items'].append(b)
+    
+    return render_template('production/bread_list.html', grouped_breads=grouped.values(), timedelta=timedelta)
 
 @production_bp.route('/bread/add', methods=['GET', 'POST'])
 @login_required
@@ -139,6 +154,30 @@ def add_bread():
     employees = Employee.query.filter_by(lavozim='Yasovchi').all()
     non_turlari = BreadType.query.order_by(BreadType.nomi).all()
     return render_template('production/bread_add.html', doughs=doughs, employees=employees, non_turlari=non_turlari, timedelta=timedelta)
+
+@production_bp.route('/bread/delete/<int:id>')
+@login_required
+def delete_bread(id):
+    """Guruhlangan nonlarni o'chirish - bir vaqtda qo'shilganlarni hammasini o'chiradi"""
+    target = BreadMaking.query.get_or_404(id)
+    
+    # Shu xodim va shu vaqtda qo'shilgan barcha nonlarni topish
+    if target.created_at:
+        key_time = target.created_at.strftime('%Y%m%d%H%M')
+        all_to_delete = BreadMaking.query.filter(
+            BreadMaking.xodim_id == target.xodim_id,
+            db.func.strftime('%Y%m%d%H%M', BreadMaking.created_at) == key_time
+        ).all()
+    else:
+        # created_at bo'lmasa, faqat shu ID ni o'chirish
+        all_to_delete = [target]
+    
+    count = len(all_to_delete)
+    for b in all_to_delete:
+        db.session.delete(b)
+    db.session.commit()
+    flash(f'{count} ta non yozuvi o\'chirildi!', 'success')
+    return redirect(url_for('production.list_bread'))
 
 @production_bp.route('/bread/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
