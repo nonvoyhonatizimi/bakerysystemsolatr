@@ -208,12 +208,13 @@ def list_oven():
 def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
+        yopilgan_non_kg = float(request.form.get('yopilgan_non_kg', 0) or 0)
         
         # Asosiy Oven yozuvi
         new_oven = Oven(
             sana=datetime.now().date(),
             xodim_id=tandirchi_id,
-            un_kg=0
+            un_kg=yopilgan_non_kg
         )
         db.session.add(new_oven)
         db.session.commit()
@@ -240,7 +241,8 @@ def add_oven():
                 jami_brak += brak
         
         db.session.commit()
-        flash(f'Tandir ma\'lumoti qo\'shildi. Chiqqan: {jami_chiqqan}, Brak: {jami_brak}', 'success')
+        ish_haqqi = int(yopilgan_non_kg * 1000)
+        flash(f'Tandir ma\'lumoti qo\'shildi. Chiqqan: {jami_chiqqan}, Brak: {jami_brak}. Ish haqqi: {ish_haqqi:,} so\'m', 'success')
         return redirect(url_for('production.list_oven'))
     
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()

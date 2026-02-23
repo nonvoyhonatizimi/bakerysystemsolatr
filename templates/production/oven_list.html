@@ -25,27 +25,32 @@
                     <tr>
                         <th>Sana/Soat (UZ)</th>
                         <th>Tandirchi</th>
+                        <th>Yopilgan non (kg)</th>
                         <th>Non turi</th>
                         <th>Chiqqan non</th>
                         <th>Brak</th>
                         <th>Sof non</th>
+                        <th>Ish haqqi</th>
                         <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for o in ovens %}
+                        {% set ish_haqqi = (o.un_kg * 1000)|int %}
                         {% if o.details %}
                             {% for detail in o.details %}
                             <tr>
                                 {% if loop.first %}
                                 <td rowspan="{{ o.details|length }}">{{ o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else o.sana.strftime('%d.%m.%Y') }}</td>
                                 <td rowspan="{{ o.details|length }}">{{ o.employee.ism if o.employee else 'Noma\'lum' }}</td>
+                                <td rowspan="{{ o.details|length }}">{{ o.un_kg }}</td>
                                 {% endif %}
                                 <td><span class="badge bg-info">{{ detail.non_turi }}</span></td>
                                 <td>{{ detail.chiqqan }}</td>
                                 <td class="text-danger">{{ detail.brak }}</td>
                                 <td class="text-success">{{ detail.sof }}</td>
                                 {% if loop.first %}
+                                <td rowspan="{{ o.details|length }}">{{ ish_haqqi:, }} so'm</td>
                                 <td rowspan="{{ o.details|length }}">
                                     <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
                                         <i class="fas fa-edit"></i> Tahrirlash
@@ -61,10 +66,12 @@
                         <tr>
                             <td>{{ o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else o.sana.strftime('%d.%m.%Y') }}</td>
                             <td>{{ o.employee.ism if o.employee else 'Noma\'lum' }}</td>
+                            <td>{{ o.un_kg }}</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
+                            <td>{{ ish_haqqi:, }} so'm</td>
                             <td>
                                 <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
                                     <i class="fas fa-edit"></i> Tahrirlash
@@ -77,7 +84,7 @@
                         {% endif %}
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="9" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>
