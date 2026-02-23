@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, DriverInventory, BreadReady, uz_datetime
+from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, DriverInventory, uz_datetime
 from datetime import datetime, timedelta
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
@@ -162,13 +162,7 @@ def edit_bread(id):
 @login_required
 def list_oven():
     ovens = Oven.query.order_by(Oven.sana.desc()).all()
-    
-    # Bugun kelgan nonlar
-    from datetime import date
-    today = date.today()
-    ready_breads = BreadReady.query.filter_by(sana=today).order_by(BreadReady.created_at.desc()).all()
-    
-    return render_template('production/oven_list.html', ovens=ovens, ready_breads=ready_breads)
+    return render_template('production/oven_list.html', ovens=ovens)
 
 @production_bp.route('/oven/add', methods=['GET', 'POST'])
 @login_required
@@ -421,56 +415,4 @@ def delete_oven_transfer(id):
     db.session.delete(transfer)
     db.session.commit()
     flash('O\'tkazish o\'chirildi!', 'success')
-    return redirect(url_for('production.list_oven'))
-
-# Yasovchi non tayyor
-@production_bp.route('/bread-ready', methods=['GET', 'POST'])
-@login_required
-def bread_ready():
-    """Yasovchi non tayyor"""
-    if request.method == 'POST':
-        non_turi = request.form.get('non_turi')
-        miqdor = int(request.form.get('miqdor', 0))
-        
-        if not non_turi or miqdor <= 0:
-            flash('Non turi va miqdorini kiriting!', 'error')
-            return redirect(url_for('production.bread_ready'))
-        
-        new_ready = BreadReady(
-            sana=datetime.now().date(),
-            yasovchi_id=current_user.employee_id,
-            non_turi=non_turi,
-            miqdor=miqdor,
-            status='tayyor'
-        )
-        db.session.add(new_ready)
-        db.session.commit()
-        
-        flash(f'{miqdor} dona {non_turi} tayyor!', 'success')
-        return redirect(url_for('production.bread_ready'))
-    
-    # Bugun tayyorlangan nonlar
-    from datetime import date
-    today = date.today()
-    ready_breads = BreadReady.query.filter_by(sana=today, yasovchi_id=current_user.employee_id).order_by(BreadReady.created_at.desc()).all()
-    
-    non_turlari = BreadType.query.order_by(BreadType.nomi).all()
-    return render_template('production/bread_ready.html', ready_breads=ready_breads, non_turlari=non_turlari)
-
-@production_bp.route('/accept-bread/<int:id>', methods=['POST'])
-@login_required
-def accept_bread(id):
-    """Tandirchi nonni qabul qiladi va brakni yozadi"""
-    bread = BreadReady.query.get_or_404(id)
-    brak = int(request.form.get('brak', 0))
-    
-    if brak < 0 or brak > bread.miqdor:
-        flash('Brak miqdori noto\'g\'ri!', 'error')
-        return redirect(url_for('production.list_oven'))
-    
-    bread.brak = brak
-    bread.status = 'qabul_qilindi'
-    db.session.commit()
-    
-    flash(f'{bread.non_turi} qabul qilindi! Brak: {brak}', 'success')
     return redirect(url_for('production.list_oven'))

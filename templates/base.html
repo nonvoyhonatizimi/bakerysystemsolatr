@@ -117,11 +117,6 @@
                             <i class="fas fa-bread-slice"></i> Non Yasash
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'production.bread_ready' in request.endpoint %}active{% endif %}" href="{{ url_for('production.bread_ready') }}">
-                            <i class="fas fa-check-circle"></i> Non tayyor
-                        </a>
-                    </li>
                     {% endif %}
 
                     {% if current_user.rol == 'admin' or (current_user.employee and current_user.employee.lavozim in ['Tandirchi', 'Operator']) %}
