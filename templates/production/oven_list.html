@@ -23,34 +23,61 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Sana</th>
+                        <th>Sana/Soat (UZ)</th>
                         <th>Tandirchi</th>
-                        <th>Kirgan non</th>
+                        <th>Non turi</th>
                         <th>Chiqqan non</th>
                         <th>Brak</th>
+                        <th>Sof non</th>
                         <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for o in ovens %}
-                    <tr>
-                        <td>{{ o.sana.strftime('%d.%m.%Y') }}</td>
-                        <td>{{ o.employee.ism }}</td>
-                        <td>{{ o.kirdi }}</td>
-                        <td>{{ o.chiqdi }}</td>
-                        <td class="text-danger">{{ o.brak }}</td>
-                        <td>
-                            <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
-                                <i class="fas fa-edit"></i> Tahrirlash
-                            </a>
-                            <a href="{{ url_for('production.delete_oven', id=o.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
-                                <i class="fas fa-trash"></i> O'chirish
-                            </a>
-                        </td>
-                    </tr>
+                        {% if o.details %}
+                            {% for detail in o.details %}
+                            <tr>
+                                {% if loop.first %}
+                                <td rowspan="{{ o.details|length }}">{{ o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else o.sana.strftime('%d.%m.%Y') }}</td>
+                                <td rowspan="{{ o.details|length }}">{{ o.employee.ism if o.employee else 'Noma\'lum' }}</td>
+                                {% endif %}
+                                <td><span class="badge bg-info">{{ detail.non_turi }}</span></td>
+                                <td>{{ detail.chiqqan }}</td>
+                                <td class="text-danger">{{ detail.brak }}</td>
+                                <td class="text-success">{{ detail.sof }}</td>
+                                {% if loop.first %}
+                                <td rowspan="{{ o.details|length }}">
+                                    <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
+                                        <i class="fas fa-edit"></i> Tahrirlash
+                                    </a>
+                                    <a href="{{ url_for('production.delete_oven', id=o.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                        <i class="fas fa-trash"></i> O'chirish
+                                    </a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td>{{ o.created_at.strftime('%d.%m.%Y %H:%M') if o.created_at else o.sana.strftime('%d.%m.%Y') }}</td>
+                            <td>{{ o.employee.ism if o.employee else 'Noma\'lum' }}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>
+                                <a href="{{ url_for('production.edit_oven', id=o.id) }}" class="btn btn-sm btn-warning me-1">
+                                    <i class="fas fa-edit"></i> Tahrirlash
+                                </a>
+                                <a href="{{ url_for('production.delete_oven', id=o.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Haqiqatan ham o\'chirmoqchimisiz?')">
+                                    <i class="fas fa-trash"></i> O'chirish
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted">Ma'lumotlar topilmadi</td>
+                        <td colspan="7" class="text-center text-muted">Ma'lumotlar topilmadi</td>
                     </tr>
                     {% endfor %}
                 </tbody>

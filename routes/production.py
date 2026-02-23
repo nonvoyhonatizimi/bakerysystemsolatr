@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Dough, BreadMaking, Oven, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, DriverInventory, uz_datetime
+from models import db, Dough, BreadMaking, Oven, OvenDetail, Employee, UnQoldiq, UnTuri, BreadType, BreadTransfer, DriverInventory, uz_datetime
 from datetime import datetime, timedelta
 
 production_bp = Blueprint('production', __name__, url_prefix='/production')
@@ -170,8 +170,16 @@ def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
         
-        # 4 ta non turini yig'ish
-        non_turlar = []
+        # Asosiy Oven yozuvi
+        new_oven = Oven(
+            sana=datetime.now().date(),
+            xodim_id=tandirchi_id,
+            un_kg=0
+        )
+        db.session.add(new_oven)
+        db.session.commit()
+        
+        # 4 ta non turini alohida saqlash
         jami_chiqqan = 0
         jami_brak = 0
         
@@ -181,23 +189,17 @@ def add_oven():
             brak = int(request.form.get(f'brak_{i}', 0) or 0)
             
             if non_turi and chiqqan > 0:
-                non_turlar.append({
-                    'turi': non_turi,
-                    'chiqqan': chiqqan,
-                    'brak': brak
-                })
+                detail = OvenDetail(
+                    oven_id=new_oven.id,
+                    non_turi=non_turi,
+                    chiqqan=chiqqan,
+                    brak=brak,
+                    sof=chiqqan - brak
+                )
+                db.session.add(detail)
                 jami_chiqqan += chiqqan
                 jami_brak += brak
         
-        new_oven = Oven(
-            sana=datetime.now().date(),
-            xodim_id=tandirchi_id,
-            un_kg=0,
-            kirdi=jami_chiqqan,
-            chiqdi=jami_chiqqan - jami_brak,
-            brak=jami_brak
-        )
-        db.session.add(new_oven)
         db.session.commit()
         flash(f'Tandir ma\'lumoti qo\'shildi. Chiqqan: {jami_chiqqan}, Brak: {jami_brak}', 'success')
         return redirect(url_for('production.list_oven'))

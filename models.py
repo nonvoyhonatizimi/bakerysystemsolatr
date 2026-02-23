@@ -85,13 +85,21 @@ class Oven(db.Model):
     __tablename__ = 'tandir'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
     un_kg = db.Column(db.Integer, default=0)  # Ishlatilgan un (kg)
-    kirdi = db.Column(db.Integer, default=0)  # Kirgan non (dona)
-    chiqdi = db.Column(db.Integer, default=0)  # Chiqqan non (dona)
-    brak = db.Column(db.Integer, default=0)  # Brak non (dona)
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
     
     employee = db.relationship('Employee', backref='oven_records')
+    details = db.relationship('OvenDetail', backref='oven', lazy=True)
+
+class OvenDetail(db.Model):
+    __tablename__ = 'tandir_tafsilot'
+    id = db.Column(db.Integer, primary_key=True)
+    oven_id = db.Column(db.Integer, db.ForeignKey('tandir.id'))
+    non_turi = db.Column(db.String(100), nullable=False)
+    chiqqan = db.Column(db.Integer, default=0)
+    brak = db.Column(db.Integer, default=0)
+    sof = db.Column(db.Integer, default=0)
 
 class Sale(db.Model):
     __tablename__ = 'sotuvlar'
