@@ -169,23 +169,42 @@ def list_oven():
 def add_oven():
     if request.method == 'POST':
         tandirchi_id = request.form.get('tandirchi_id')
-        un_kg = int(request.form.get('un_kg', 0))
+        
+        # 4 ta non turini yig'ish
+        non_turlar = []
+        jami_chiqqan = 0
+        jami_brak = 0
+        
+        for i in range(1, 5):
+            non_turi = request.form.get(f'non_turi_{i}', '').strip()
+            chiqqan = int(request.form.get(f'chiqqan_{i}', 0) or 0)
+            brak = int(request.form.get(f'brak_{i}', 0) or 0)
+            
+            if non_turi and chiqqan > 0:
+                non_turlar.append({
+                    'turi': non_turi,
+                    'chiqqan': chiqqan,
+                    'brak': brak
+                })
+                jami_chiqqan += chiqqan
+                jami_brak += brak
         
         new_oven = Oven(
             sana=datetime.now().date(),
             xodim_id=tandirchi_id,
-            un_kg=un_kg,
-            kirdi=0,
-            chiqdi=0,
-            brak=0
+            un_kg=0,
+            kirdi=jami_chiqqan,
+            chiqdi=jami_chiqqan - jami_brak,
+            brak=jami_brak
         )
         db.session.add(new_oven)
         db.session.commit()
-        flash(f'Tandir ma\'lumoti qo\'shildi. Ish haqqi: {un_kg * 1000:,} so\'m', 'success')
+        flash(f'Tandir ma\'lumoti qo\'shildi. Chiqqan: {jami_chiqqan}, Brak: {jami_brak}', 'success')
         return redirect(url_for('production.list_oven'))
     
     employees = Employee.query.filter_by(lavozim='Tandirchi').all()
-    return render_template('production/oven_add.html', employees=employees)
+    bread_types = BreadType.query.order_by(BreadType.nomi).all()
+    return render_template('production/oven_add.html', employees=employees, bread_types=bread_types)
 
 # ========== TANDIRCHI → HAYDOVCHI NON O'TKAZISH ==========
 @production_bp.route('/oven/transfer', methods=['GET', 'POST'])
