@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven, BreadTransfer, DriverInventory, uz_datetime
+from models import db, Customer, Sale, Employee, Dough, BreadMaking, Oven, BreadTransfer, DriverInventory, DayStatus, uz_datetime
 from sqlalchemy import func
 from decimal import Decimal
 import requests
@@ -388,6 +388,9 @@ def daily_sales():
         DriverInventory.sana == filter_date
     ).order_by(DriverInventory.driver_id, DriverInventory.non_turi).all()
     
+    # Kun holatini tekshirish
+    day_status = DayStatus.query.filter_by(sana=filter_date).first()
+    
     return render_template('reports/daily_sales.html',
                          filter_date=filter_date,
                          driver_id=driver_id,
@@ -399,4 +402,41 @@ def daily_sales():
                          jami_qarz=jami_qarz,
                          jami_naqt=jami_naqt,
                          non_turlari=non_turlari,
-                         driver_inventory=driver_inventory)
+                         driver_inventory=driver_inventory,
+                         day_status=day_status)
+
+@reports_bp.route('/close-day', methods=['POST'])
+@login_required
+def close_day():
+    """Kunni yopish (faqat admin)"""
+    if current_user.rol != 'admin':
+        flash('Bu funksiya faqat admin uchun!', 'error')
+        return redirect(url_for('reports.daily_sales'))
+    
+    from datetime import date
+    today = date.today()
+    
+    # Bugungi kun statusini tekshirish
+    day_status = DayStatus.query.filter_by(sana=today).first()
+    
+    if day_status and day_status.status == 'yopiq':
+        flash('Bugungi kun allaqachon yopilgan!', 'warning')
+        return redirect(url_for('reports.daily_sales'))
+    
+    # Kunni yopish
+    if day_status:
+        day_status.status = 'yopiq'
+        day_status.yopilgan_vaqt = uz_datetime()
+        day_status.yopgan_admin = current_user.ism
+    else:
+        day_status = DayStatus(
+            sana=today,
+            status='yopiq',
+            yopilgan_vaqt=uz_datetime(),
+            yopgan_admin=current_user.ism
+        )
+        db.session.add(day_status)
+    
+    db.session.commit()
+    flash(f'{today.strftime("%d.%m.%Y")} sanasi yopildi!', 'success')
+    return redirect(url_for('reports.daily_sales'))

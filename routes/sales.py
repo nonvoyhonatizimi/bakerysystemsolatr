@@ -218,7 +218,9 @@ def add_sale():
             narx_dona=narx,
             jami_summa=jami,
             tolandi=tolandi,
-            qoldiq_qarz=qarz
+            qoldiq_qarz=qarz,
+            xodim=current_user.ism,
+            xodim_id=current_user.employee_id
         )
         
         # Update customer debt

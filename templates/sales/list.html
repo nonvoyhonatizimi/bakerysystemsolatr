@@ -24,6 +24,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Sana</th>
+                        <th>Soat</th>
                         <th>Mijoz</th>
                         <th>Non turi</th>
                         <th>Miqdor</th>
@@ -31,6 +32,7 @@
                         <th>Jami</th>
                         <th>Tolandi</th>
                         <th>Qarz</th>
+                        <th>Xodim</th>
                         <th>Amallar</th>
                     </tr>
                 </thead>
@@ -38,6 +40,7 @@
                     {% for sale in sales %}
                     <tr>
                         <td>{{ sale.sana.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ sale.created_at.strftime('%H:%M') if sale.created_at else '-' }}</td>
                         <td>{{ sale.customer.nomi if sale.customer else 'Noma\'lum' }}</td>
                         <td>{{ sale.non_turi }}</td>
                         <td>{{ sale.miqdor }}</td>
@@ -47,6 +50,7 @@
                         <td class="{% if sale.qoldiq_qarz > 0 %}text-danger fw-bold{% endif %}">
                             {{ "{:,.0f}".format(sale.qoldiq_qarz) }}
                         </td>
+                        <td>{{ sale.xodim if sale.xodim else 'Admin' }}</td>
                         <td>
                             {% if sale.qoldiq_qarz > 0 %}
                             <a href="{{ url_for('sales.pay_debt', sale_id=sale.id) }}" 

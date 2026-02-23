@@ -97,6 +97,7 @@ class Sale(db.Model):
     __tablename__ = 'sotuvlar'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=uz_datetime)
     mijoz_id = db.Column(db.Integer, db.ForeignKey('mijozlar.id'))
     non_turi = db.Column(db.String(50))
     miqdor = db.Column(db.Integer)
@@ -105,6 +106,7 @@ class Sale(db.Model):
     tolandi = db.Column(db.Numeric(10, 2), default=0)
     qoldiq_qarz = db.Column(db.Numeric(10, 2), default=0)
     xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
+    xodim = db.Column(db.String(100))
     
     customer = db.relationship('Customer', backref='sales')
     employee = db.relationship('Employee', backref='sales')
@@ -138,6 +140,14 @@ class Log(db.Model):
     foydalanuvchi = db.Column(db.String(50))
     harakat = db.Column(db.String(100))
     maumot = db.Column(db.String(200))
+
+class DayStatus(db.Model):
+    __tablename__ = 'kun_holati'
+    id = db.Column(db.Integer, primary_key=True)
+    sana = db.Column(db.Date, nullable=False, unique=True)
+    status = db.Column(db.String(20), default='ochiq')  # 'ochiq' yoki 'yopiq'
+    yopilgan_vaqt = db.Column(db.DateTime)
+    yopgan_admin = db.Column(db.String(100))
 
 class UnQoldiq(db.Model):
     __tablename__ = 'un_qoldiq'
