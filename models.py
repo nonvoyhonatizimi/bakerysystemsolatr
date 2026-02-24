@@ -182,6 +182,7 @@ class BreadTransfer(db.Model):
     __tablename__ = 'non_otkazish'
     id = db.Column(db.Integer, primary_key=True)
     sana = db.Column(db.Date, nullable=False)
+    smena = db.Column(db.Integer, default=1)  # Smena raqami
     created_at = db.Column(db.DateTime, default=uz_datetime)
     # Kimdan (Tandirchi yoki Haydovchi)
     from_xodim_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'))
@@ -224,6 +225,7 @@ class DriverInventory(db.Model):
     non_turi = db.Column(db.String(100), nullable=False)
     miqdor = db.Column(db.Integer, default=0)
     sana = db.Column(db.Date, nullable=False)
+    smena = db.Column(db.Integer, default=1)  # Smena raqami
     updated_at = db.Column(db.DateTime, default=uz_datetime)
     
     driver = db.relationship('Employee', backref='inventory')
