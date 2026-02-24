@@ -324,11 +324,31 @@ def daily_sales():
     # Har doim bugungi sana
     filter_date = date.today()
     
+    # Kun holatini tekshirish
+    day_status = DayStatus.query.filter_by(sana=filter_date).first()
+    is_smena_closed = day_status and day_status.status == 'yopiq'
+    
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
     
     # Barcha haydovchilar
     drivers = Employee.query.filter_by(lavozim='Haydovchi', status='faol').all()
+    
+    # Agar smena yopilgan bo'lsa, barcha hisobotlar 0
+    if is_smena_closed:
+        return render_template('reports/daily_sales.html',
+                             filter_date=filter_date,
+                             driver_id=driver_id,
+                             drivers=drivers,
+                             driver_sales={},
+                             tandirchi_transfers=[],
+                             haydovchi_transfers=[],
+                             jami_sotuvlar=0,
+                             jami_qarz=0,
+                             jami_naqt=0,
+                             non_turlari={},
+                             driver_inventory=[],
+                             day_status=day_status)
     
     # Sotuvlarni olish
     query = Sale.query.filter(Sale.sana == filter_date)
@@ -431,15 +451,8 @@ def close_day():
         )
         db.session.add(old_day_status)
     
-    # YANGI SMENA uchun barcha sotuvlarni o'chirish (0 dan boshlash)
-    # Bugungi sotuvlarni o'chirish
-    Sale.query.filter(Sale.sana == today).delete()
-    
-    # Haydovchi qoldiqlarini tozalash
-    DriverInventory.query.filter(DriverInventory.sana == today).delete()
-    
-    # Non o'tkazishlarni o'chirish
-    BreadTransfer.query.filter(BreadTransfer.sana == today).delete()
+    # YANGI SMENA - faqat Bugungi sotuvlar menyusini tozalash
+    # Boshqa menyular (Tandir, Yasovchi, Xamir, Mijozlar) saqlanib qoladi
     
     db.session.commit()
     flash('Smena yopildi! Yangi smena 0 dan boshlandi.', 'success')
