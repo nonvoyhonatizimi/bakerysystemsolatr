@@ -408,22 +408,17 @@ def daily_sales():
 @reports_bp.route('/close-day', methods=['POST'])
 @login_required
 def close_day():
-    """Kunni yopish (faqat admin)"""
+    """Kunni yopish va yangi kun boshlash (faqat admin)"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.daily_sales'))
     
-    from datetime import date
+    from datetime import date, timedelta
     today = date.today()
+    tomorrow = today + timedelta(days=1)
     
-    # Bugungi kun statusini tekshirish
+    # Eski kunni yopish
     day_status = DayStatus.query.filter_by(sana=today).first()
-    
-    if day_status and day_status.status == 'yopiq':
-        flash('Bugungi kun allaqachon yopilgan!', 'warning')
-        return redirect(url_for('reports.daily_sales'))
-    
-    # Kunni yopish
     if day_status:
         day_status.status = 'yopiq'
         day_status.yopilgan_vaqt = uz_datetime()
@@ -438,5 +433,5 @@ def close_day():
         db.session.add(day_status)
     
     db.session.commit()
-    flash(f'{today.strftime("%d.%m.%Y")} sanasi yopildi!', 'success')
-    return redirect(url_for('reports.daily_sales'))
+    flash(f'{today.strftime("%d.%m.%Y")} sanasi yopildi! Yangi kun boshlandi.', 'success')
+    return redirect(url_for('reports.daily_sales', date=tomorrow.strftime('%Y-%m-%d')))
