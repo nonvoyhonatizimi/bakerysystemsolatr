@@ -388,9 +388,8 @@ def daily_sales():
         DriverInventory.sana == filter_date
     ).order_by(DriverInventory.driver_id, DriverInventory.non_turi).all()
     
-    # Kun holatini tekshirish (smena bo'yicha)
-    current_smena = request.args.get('smena', 'kunduz')
-    day_status = DayStatus.query.filter_by(sana=filter_date, smena=current_smena).first()
+    # Kun holatini tekshirish
+    day_status = DayStatus.query.filter_by(sana=filter_date).first()
     
     return render_template('reports/daily_sales.html',
                          filter_date=filter_date,
@@ -409,7 +408,7 @@ def daily_sales():
 @reports_bp.route('/close-day', methods=['POST'])
 @login_required
 def close_day():
-    """Smena almashtirish (faqat admin)"""
+    """Kunni yopish (faqat admin)"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.daily_sales'))
@@ -417,12 +416,14 @@ def close_day():
     from datetime import date
     today = date.today()
     
-    # Hozirgi smenani aniqlash (URL dan yoki default kunduz)
-    current_smena = request.args.get('smena', 'kunduz')
-    next_smena = 'tun' if current_smena == 'kunduz' else 'kunduz'
+    # Bugungi kun statusini tekshirish
+    day_status = DayStatus.query.filter_by(sana=today).first()
     
-    # Hozirgi smenani yopish
-    day_status = DayStatus.query.filter_by(sana=today, smena=current_smena).first()
+    if day_status and day_status.status == 'yopiq':
+        flash('Bugungi kun allaqachon yopilgan!', 'warning')
+        return redirect(url_for('reports.daily_sales'))
+    
+    # Kunni yopish
     if day_status:
         day_status.status = 'yopiq'
         day_status.yopilgan_vaqt = uz_datetime()
@@ -430,7 +431,6 @@ def close_day():
     else:
         day_status = DayStatus(
             sana=today,
-            smena=current_smena,
             status='yopiq',
             yopilgan_vaqt=uz_datetime(),
             yopgan_admin=current_user.ism
@@ -438,5 +438,5 @@ def close_day():
         db.session.add(day_status)
     
     db.session.commit()
-    flash(f'{current_smena.capitalize()} smenasi yopildi! {next_smena.capitalize()} smenasi boshlandi.', 'success')
-    return redirect(url_for('reports.daily_sales', smena=next_smena))
+    flash(f'{today.strftime("%d.%m.%Y")} sanasi yopildi!', 'success')
+    return redirect(url_for('reports.daily_sales'))

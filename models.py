@@ -152,13 +152,10 @@ class Log(db.Model):
 class DayStatus(db.Model):
     __tablename__ = 'kun_holati'
     id = db.Column(db.Integer, primary_key=True)
-    sana = db.Column(db.Date, nullable=False)
-    smena = db.Column(db.String(20), default='kunduz')  # 'kunduz' yoki 'tun'
+    sana = db.Column(db.Date, nullable=False, unique=True)
     status = db.Column(db.String(20), default='ochiq')  # 'ochiq' yoki 'yopiq'
     yopilgan_vaqt = db.Column(db.DateTime)
     yopgan_admin = db.Column(db.String(100))
-    
-    __table_args__ = (db.UniqueConstraint('sana', 'smena', name='unique_smena'),)
 
 class UnQoldiq(db.Model):
     __tablename__ = 'un_qoldiq'

@@ -1,24 +1,16 @@
 {% extends "base.html" %}
 
-{% set current_smena = request.args.get('smena', 'kunduz') %}
 {% block title %}Bugungi sotuvlar - Nonvoyhona Tizimi{% endblock %}
-{% block header_title %}{{ current_smena.capitalize() }} smenasi - Sotuvlar hisoboti{% endblock %}
+{% block header_title %}Bugungi sotuvlar hisoboti{% endblock %}
 
 {% block content %}
 <!-- Filter -->
 <div class="card mb-4">
     <div class="card-header bg-white">
         <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="date" class="form-label">Sana</label>
                 <input type="date" class="form-control" id="date" name="date" value="{{ filter_date.strftime('%Y-%m-%d') }}">
-            </div>
-            <div class="col-md-2">
-                <label for="smena" class="form-label">Smena</label>
-                <select class="form-select" id="smena" name="smena">
-                    <option value="kunduz" {% if current_smena == 'kunduz' %}selected{% endif %}>Kunduz</option>
-                    <option value="tun" {% if current_smena == 'tun' %}selected{% endif %}>Tun</option>
-                </select>
             </div>
             <div class="col-md-3">
                 <label for="driver_id" class="form-label">Haydovchi</label>
@@ -29,19 +21,19 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary w-100">Ko'rish</button>
             </div>
             <div class="col-md-3">
                 {% if current_user.rol == 'admin' %}
                     {% if day_status and day_status.status == 'yopiq' %}
                         <button type="button" class="btn btn-secondary w-100" disabled>
-                            <i class="fas fa-lock"></i> {{ current_smena.capitalize() }} yopilgan
+                            <i class="fas fa-lock"></i> Kun yopilgan
                         </button>
                     {% else %}
-                        <form method="POST" action="{{ url_for('reports.close_day', smena=current_smena) }}" onsubmit="return confirm('{{ current_smena.capitalize() }} smenasini yopib, keyingi smenaga o\'tmoqchimisiz?')">
+                        <form method="POST" action="{{ url_for('reports.close_day') }}" onsubmit="return confirm('Haqiqatan ham kunni yopmoqchimisiz?')">
                             <button type="submit" class="btn btn-danger w-100">
-                                <i class="fas fa-exchange-alt"></i> Smena almashtirish
+                                <i class="fas fa-lock"></i> Kunni yopish
                             </button>
                         </form>
                     {% endif %}
