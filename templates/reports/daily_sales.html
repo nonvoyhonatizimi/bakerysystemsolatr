@@ -32,23 +32,22 @@
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100">Ko'rish</button>
             </div>
+            <div class="col-md-3">
+                {% if current_user.rol == 'admin' %}
+                    {% if day_status and day_status.status == 'yopiq' %}
+                        <button type="button" class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-lock"></i> {{ current_smena.capitalize() }} yopilgan
+                        </button>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('reports.close_day', smena=current_smena) }}" onsubmit="return confirm('{{ current_smena.capitalize() }} smenasini yopib, keyingi smenaga o\'tmoqchimisiz?')">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="fas fa-exchange-alt"></i> Smena almashtirish
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
             </div>
         </form>
-        {% if current_user.rol == 'admin' %}
-        <div class="mt-3">
-            {% if day_status and day_status.status == 'yopiq' %}
-                <button type="button" class="btn btn-secondary w-100" disabled>
-                    <i class="fas fa-lock"></i> {{ current_smena.capitalize() }} yopilgan
-                </button>
-            {% else %}
-                <form method="POST" action="{{ url_for('reports.close_day', smena=current_smena) }}" onsubmit="return confirm('{{ current_smena.capitalize() }} smenasini yopib, keyingi smenaga o\'tmoqchimisiz?')">
-                    <button type="submit" class="btn btn-danger w-100">
-                        <i class="fas fa-exchange-alt"></i> Smena almashtirish
-                    </button>
-                </form>
-            {% endif %}
-        </div>
-        {% endif %}
     </div>
 </div>
 
