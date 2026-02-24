@@ -210,14 +210,10 @@ def add_sale():
                 flash(f'Sizda yetarli {non_turi} yo\'q! Avval non oling.', 'error')
                 return redirect(url_for('sales.add_sale'))
         
-        # Joriy smenani aniqlash
+        # Oxirgi yopilgan smenani topish va yangi smena raqamini aniqlash
         today = date.today()
-        current_smena = 1
-        last_day_status = DayStatus.query.filter_by(sana=today).order_by(DayStatus.smena.desc()).first()
-        if last_day_status and last_day_status.status == 'ochiq':
-            current_smena = last_day_status.smena
-        elif last_day_status:
-            current_smena = last_day_status.smena + 1
+        last_closed = DayStatus.query.filter_by(sana=today, status='yopiq').order_by(DayStatus.smena.desc()).first()
+        current_smena = last_closed.smena + 1 if last_closed else 1
         
         new_sale = Sale(
             sana=datetime.now().date(),
