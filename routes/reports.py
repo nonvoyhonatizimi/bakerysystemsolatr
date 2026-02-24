@@ -324,8 +324,18 @@ def daily_sales():
     # Har doim bugungi sana
     filter_date = date.today()
     
-    # Kun holatini tekshirish
-    day_status = DayStatus.query.filter_by(sana=filter_date).first()
+    # Joriy smenani aniqlash (oxirgi ochiq smena yoki yangi smena)
+    current_smena = 1
+    last_day_status = DayStatus.query.filter_by(sana=filter_date).order_by(DayStatus.smena.desc()).first()
+    if last_day_status:
+        if last_day_status.status == 'ochiq':
+            current_smena = last_day_status.smena
+        else:
+            # Oxirgi smena yopiq bo'lsa, yangi smena
+            current_smena = last_day_status.smena + 1
+    
+    # Joriy smena statusini tekshirish
+    day_status = DayStatus.query.filter_by(sana=filter_date, smena=current_smena).first()
     is_smena_closed = day_status and day_status.status == 'yopiq'
     
     # Haydovchi filter
@@ -338,6 +348,7 @@ def daily_sales():
     if is_smena_closed:
         return render_template('reports/daily_sales.html',
                              filter_date=filter_date,
+                             smena=current_smena,
                              driver_id=driver_id,
                              drivers=drivers,
                              driver_sales={},
@@ -350,8 +361,8 @@ def daily_sales():
                              driver_inventory=[],
                              day_status=day_status)
     
-    # Sotuvlarni olish
-    query = Sale.query.filter(Sale.sana == filter_date)
+    # Sotuvlarni olish (joriy smena bo'yicha)
+    query = Sale.query.filter(Sale.sana == filter_date, Sale.smena == current_smena)
     if driver_id:
         # Agar haydovchi tanlangan bo'lsa, faqat o'sha haydovchining sotuvlari
         # (Hozircha barcha sotuvlarni olamiz, keyin filtrlaymiz)
@@ -436,8 +447,14 @@ def close_day():
     from datetime import date
     today = date.today()
     
+    # Joriy smenani aniqlash
+    current_smena = 1
+    last_day_status = DayStatus.query.filter_by(sana=today).order_by(DayStatus.smena.desc()).first()
+    if last_day_status:
+        current_smena = last_day_status.smena
+    
     # Eski smenani yopish
-    old_day_status = DayStatus.query.filter_by(sana=today).first()
+    old_day_status = DayStatus.query.filter_by(sana=today, smena=current_smena).first()
     if old_day_status:
         old_day_status.status = 'yopiq'
         old_day_status.yopilgan_vaqt = uz_datetime()
@@ -445,15 +462,24 @@ def close_day():
     else:
         old_day_status = DayStatus(
             sana=today,
+            smena=current_smena,
             status='yopiq',
             yopilgan_vaqt=uz_datetime(),
             yopgan_admin=current_user.ism
         )
         db.session.add(old_day_status)
     
-    # YANGI SMENA - faqat Bugungi sotuvlar menyusini tozalash
-    # Boshqa menyular (Tandir, Yasovchi, Xamir, Mijozlar) saqlanib qoladi
+    # YANGI SMENA yaratish
+    new_smena = current_smena + 1
+    new_day_status = DayStatus(
+        sana=today,
+        smena=new_smena,
+        status='ochiq',
+        yopilgan_vaqt=None,
+        yopgan_admin=None
+    )
+    db.session.add(new_day_status)
     
     db.session.commit()
-    flash('Smena yopildi! Yangi smena 0 dan boshlandi.', 'success')
+    flash(f'Smena {current_smena} yopildi! Smena {new_smena} boshlandi.', 'success')
     return redirect(url_for('reports.daily_sales'))
