@@ -408,7 +408,7 @@ def daily_sales():
 @reports_bp.route('/close-day', methods=['POST'])
 @login_required
 def close_day():
-    """Kunni yopish va yangi hisobot boshlash (faqat admin)"""
+    """Smenani yopish va yangi smena boshlash (faqat admin)"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.daily_sales'))
@@ -416,7 +416,7 @@ def close_day():
     from datetime import date
     today = date.today()
     
-    # Eski kunni yopish
+    # Eski smenani yopish
     old_day_status = DayStatus.query.filter_by(sana=today).first()
     if old_day_status:
         old_day_status.status = 'yopiq'
@@ -431,6 +431,16 @@ def close_day():
         )
         db.session.add(old_day_status)
     
+    # YANGI SMENA uchun barcha sotuvlarni o'chirish (0 dan boshlash)
+    # Bugungi sotuvlarni o'chirish
+    Sale.query.filter(Sale.sana == today).delete()
+    
+    # Haydovchi qoldiqlarini tozalash
+    DriverInventory.query.filter(DriverInventory.sana == today).delete()
+    
+    # Non o'tkazishlarni o'chirish
+    BreadTransfer.query.filter(BreadTransfer.sana == today).delete()
+    
     db.session.commit()
-    flash('Kun yopildi! Yangi hisobot boshlandi.', 'success')
+    flash('Smena yopildi! Yangi smena 0 dan boshlandi.', 'success')
     return redirect(url_for('reports.daily_sales'))
