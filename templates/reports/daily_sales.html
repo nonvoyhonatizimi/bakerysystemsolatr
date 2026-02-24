@@ -8,7 +8,7 @@
 <div class="card mb-4">
     <div class="card-header bg-white">
         <div class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label class="form-label">Haydovchi</label>
                 <select class="form-select" id="driver_id" name="driver_id" onchange="filterByDriver(this.value)">
                     <option value="">Barcha haydovchilar</option>
@@ -17,11 +17,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Sana</label>
-                <input type="text" class="form-control" value="{{ filter_date.strftime('%d.%m.%Y') }}" readonly>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {% if current_user.rol == 'admin' %}
                     {% if day_status and day_status.status == 'yopiq' %}
                         <button type="button" class="btn btn-secondary w-100" disabled>

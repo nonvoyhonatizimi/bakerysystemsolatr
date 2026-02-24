@@ -320,9 +320,9 @@ def daily_transfers():
 @login_required
 def daily_sales():
     """Bugungi sotuvlar - haydovchi hisoboti"""
-    # Sana filter
-    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
-    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    from datetime import date
+    # Har doim bugungi sana
+    filter_date = date.today()
     
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
@@ -408,30 +408,29 @@ def daily_sales():
 @reports_bp.route('/close-day', methods=['POST'])
 @login_required
 def close_day():
-    """Kunni yopish va yangi kun boshlash (faqat admin)"""
+    """Kunni yopish va yangi hisobot boshlash (faqat admin)"""
     if current_user.rol != 'admin':
         flash('Bu funksiya faqat admin uchun!', 'error')
         return redirect(url_for('reports.daily_sales'))
     
-    from datetime import date, timedelta
+    from datetime import date
     today = date.today()
-    tomorrow = today + timedelta(days=1)
     
     # Eski kunni yopish
-    day_status = DayStatus.query.filter_by(sana=today).first()
-    if day_status:
-        day_status.status = 'yopiq'
-        day_status.yopilgan_vaqt = uz_datetime()
-        day_status.yopgan_admin = current_user.ism
+    old_day_status = DayStatus.query.filter_by(sana=today).first()
+    if old_day_status:
+        old_day_status.status = 'yopiq'
+        old_day_status.yopilgan_vaqt = uz_datetime()
+        old_day_status.yopgan_admin = current_user.ism
     else:
-        day_status = DayStatus(
+        old_day_status = DayStatus(
             sana=today,
             status='yopiq',
             yopilgan_vaqt=uz_datetime(),
             yopgan_admin=current_user.ism
         )
-        db.session.add(day_status)
+        db.session.add(old_day_status)
     
     db.session.commit()
-    flash(f'{today.strftime("%d.%m.%Y")} sanasi yopildi! Yangi kun boshlandi.', 'success')
-    return redirect(url_for('reports.daily_sales', date=tomorrow.strftime('%Y-%m-%d')))
+    flash('Kun yopildi! Yangi hisobot boshlandi.', 'success')
+    return redirect(url_for('reports.daily_sales'))
