@@ -324,19 +324,24 @@ def daily_sales():
     # Har doim bugungi sana
     filter_date = date.today()
     
-    # Joriy smenani aniqlash (oxirgi ochiq smena yoki yangi smena)
+    # Joriy smenani aniqlash (oxirgi ochiq smena)
     current_smena = 1
     last_day_status = DayStatus.query.filter_by(sana=filter_date).order_by(DayStatus.smena.desc()).first()
     if last_day_status:
         if last_day_status.status == 'ochiq':
             current_smena = last_day_status.smena
         else:
-            # Oxirgi smena yopiq bo'lsa, yangi smena
-            current_smena = last_day_status.smena + 1
+            # Oxirgi smena yopiq bo'lsa, yangi smena ochilganmi tekshirish
+            next_smena = DayStatus.query.filter_by(sana=filter_date, smena=last_day_status.smena + 1).first()
+            if next_smena:
+                current_smena = next_smena.smena
+            else:
+                # Yangi smena yaratilmagan - barcha smenalar yopiq
+                current_smena = last_day_status.smena + 1
     
     # Joriy smena statusini tekshirish
     day_status = DayStatus.query.filter_by(sana=filter_date, smena=current_smena).first()
-    is_smena_closed = day_status and day_status.status == 'yopiq'
+    is_smena_closed = (day_status and day_status.status == 'yopiq') or (not day_status)
     
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
@@ -447,11 +452,23 @@ def close_day():
     from datetime import date
     today = date.today()
     
-    # Joriy smenani aniqlash
+    # Joriy smenani aniqlash (oxirgi ochiq smena)
     current_smena = 1
     last_day_status = DayStatus.query.filter_by(sana=today).order_by(DayStatus.smena.desc()).first()
     if last_day_status:
-        current_smena = last_day_status.smena
+        if last_day_status.status == 'ochiq':
+            current_smena = last_day_status.smena
+        else:
+            # Oxirgi smena yopiq bo'lsa, yangi smena ochilganmi tekshirish
+            next_smena = DayStatus.query.filter_by(sana=today, smena=last_day_status.smena + 1).first()
+            if next_smena:
+                # Yangi smena allaqachon ochiq
+                flash(f'Smena {last_day_status.smena} allaqachon yopilgan! Smena {next_smena.smena} ochiq.', 'info')
+                return redirect(url_for('reports.daily_sales'))
+            else:
+                # Yangi smena yaratilmagan, xatolik
+                flash('Yangi smena yaratilmagan!', 'error')
+                return redirect(url_for('reports.daily_sales'))
     
     # Eski smenani yopish
     old_day_status = DayStatus.query.filter_by(sana=today, smena=current_smena).first()
