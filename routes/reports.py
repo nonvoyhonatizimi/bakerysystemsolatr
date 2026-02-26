@@ -437,7 +437,11 @@ def close_day():
         yopgan_admin=current_user.ism
     )
     db.session.add(new_day_status)
+    
+    # Haydovchi qoldiqlarini tozalash (smena yopilganda 0 dan boshlanadi)
+    DriverInventory.query.filter(DriverInventory.sana == today).delete()
+    
     db.session.commit()
     
-    flash('Smena yopildi! Bugungi sotuvlar yangi hisobotdan boshlandi.', 'success')
+    flash('Smena yopildi! Bugungi sotuvlar va non qoldiqlari yangi hisobotdan boshlandi.', 'success')
     return redirect(url_for('reports.daily_sales'))
