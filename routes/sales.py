@@ -271,6 +271,7 @@ def add_sale():
                 driver_id=current_user.employee_id,
                 mijoz_id=mijoz_id,
                 summa=qarz,
+                smena=current_smena,
                 status='kutilmoqda'
             )
             db.session.add(driver_payment)
@@ -546,10 +547,25 @@ def delete_transfer(id):
 @sales_bp.route('/driver-payments')
 @login_required
 def driver_payments():
-    """Haydovchi to'lovlari ro'yxati"""
-    # Sana filter
-    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
-    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
+    """Haydovchi to'lovlari ro'yxati - smena yopilganda yangilanadi"""
+    from datetime import date
+    
+    # Oxirgi yopilgan smenani topish (smena yopilganda yangilanadi)
+    last_closed_smena = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.yopilgan_vaqt.desc()).first()
+    
+    if last_closed_smena:
+        # Smena yopilganidan keyingi to'lovlarni ko'rsatish
+        filter_date = last_closed_smena.sana
+        current_smena = last_closed_smena.smena + 1
+    else:
+        # Hali smena yopilmagan
+        filter_date = date.today()
+        current_smena = 1
+    
+    # Sana filter (URL dan)
+    url_date = request.args.get('date')
+    if url_date:
+        filter_date = datetime.strptime(url_date, '%Y-%m-%d').date()
     
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
@@ -557,9 +573,10 @@ def driver_payments():
     # Status filter (default: tolandi)
     status = request.args.get('status', 'tolandi')
     
-    # Query
+    # Query - smena bo'yicha
     query = DriverPayment.query.filter(
-        db.func.date(DriverPayment.created_at) == filter_date
+        db.func.date(DriverPayment.created_at) == filter_date,
+        DriverPayment.smena >= current_smena
     )
     
     if driver_id:
