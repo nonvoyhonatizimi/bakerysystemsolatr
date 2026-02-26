@@ -43,6 +43,7 @@ class Customer(db.Model):
     turi = db.Column(db.String(50))
     telefon = db.Column(db.String(20))
     manzil = db.Column(db.String(200))
+    telegram_chat_id = db.Column(db.String(50))  # Telegram guruh ID si
     kredit_limit = db.Column(db.Numeric(10, 2), default=0)
     jami_qarz = db.Column(db.Numeric(10, 2), default=0)
     status = db.Column(db.String(20), default='faol')
@@ -210,7 +211,6 @@ class DriverPayment(db.Model):
     driver_id = db.Column(db.Integer, db.ForeignKey('xodimlar.id'), nullable=False)
     mijoz_id = db.Column(db.Integer, db.ForeignKey('mijozlar.id'), nullable=False)
     summa = db.Column(db.Numeric(10, 2), nullable=False)
-    smena = db.Column(db.Integer, default=1)  # Smena raqami
     status = db.Column(db.String(20), default='kutilmoqda')  # kutilmoqda, tolandi
     created_at = db.Column(db.DateTime, default=uz_datetime)
     collected_at = db.Column(db.DateTime, nullable=True)

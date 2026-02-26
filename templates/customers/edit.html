@@ -32,12 +32,17 @@
                         <label for="limit" class="form-label">Kredit limit (so'm)</label>
                         <input type="number" class="form-control" id="limit" name="limit" value="{{ customer.kredit_limit }}">
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="faol" {% if customer.status == 'faol' %}selected{% endif %}>Faol</option>
                             <option value="noaktiv" {% if customer.status == 'noaktiv' %}selected{% endif %}>Noaktiv</option>
                         </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="telegram_chat_id" class="form-label">Telegram guruh ID (ixtiyoriy)</label>
+                        <input type="text" class="form-control" id="telegram_chat_id" name="telegram_chat_id" value="{{ customer.telegram_chat_id or '' }}" placeholder="-1234567890">
+                        <div class="form-text">Mijozga sotuv haqida xabar yuborish uchun Telegram guruh ID si</div>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">Yangilash</button>

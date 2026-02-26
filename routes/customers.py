@@ -20,12 +20,14 @@ def add_customer():
         manzil = request.form.get('manzil')
         turi = request.form.get('turi')
         limit = request.form.get('limit', 0)
+        telegram_chat_id = request.form.get('telegram_chat_id', '').strip()
         
         new_customer = Customer(
             nomi=nomi,
             telefon=telefon,
             manzil=manzil,
             turi=turi,
+            telegram_chat_id=telegram_chat_id if telegram_chat_id else None,
             kredit_limit=limit
         )
         db.session.add(new_customer)
@@ -46,6 +48,8 @@ def edit_customer(id):
         customer.turi = request.form.get('turi')
         customer.kredit_limit = request.form.get('limit', 0)
         customer.status = request.form.get('status', 'faol')
+        telegram_chat_id = request.form.get('telegram_chat_id', '').strip()
+        customer.telegram_chat_id = telegram_chat_id if telegram_chat_id else None
         
         db.session.commit()
         flash('Mijoz ma\'lumotlari yangilandi', 'success')

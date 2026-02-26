@@ -61,16 +61,21 @@ CUSTOMER_GROUPS = {
     "benazir": "-5087901312"
 }
 
-def send_telegram_notification(customer_name, sale_data):
+def send_telegram_notification(customer_name, sale_data, customer_chat_id=None):
     """Send sale notification to customer's Telegram group"""
     # Find matching chat ID
     chat_id = None
-    customer_lower = customer_name.lower().strip()
     
-    for key, value in CUSTOMER_GROUPS.items():
-        if key.lower() in customer_lower or customer_lower in key.lower():
-            chat_id = value
-            break
+    # Avval mijozning saqlangan chat_id sini tekshirish
+    if customer_chat_id:
+        chat_id = customer_chat_id
+    else:
+        # CUSTOMER_GROUPS dan qidirish
+        customer_lower = customer_name.lower().strip()
+        for key, value in CUSTOMER_GROUPS.items():
+            if key.lower() in customer_lower or customer_lower in key.lower():
+                chat_id = value
+                break
     
     if not chat_id:
         print(f"Telegram group not found for: {customer_name}")
@@ -271,7 +276,6 @@ def add_sale():
                 driver_id=current_user.employee_id,
                 mijoz_id=mijoz_id,
                 summa=qarz,
-                smena=current_smena,
                 status='kutilmoqda'
             )
             db.session.add(driver_payment)
@@ -295,7 +299,7 @@ def add_sale():
         import threading
         telegram_thread = threading.Thread(
             target=send_telegram_notification,
-            args=(customer.nomi if customer else "Noma'lum", sale_info)
+            args=(customer.nomi if customer else "Noma'lum", sale_info, customer.telegram_chat_id if customer else None)
         )
         telegram_thread.daemon = True
         telegram_thread.start()
@@ -547,25 +551,10 @@ def delete_transfer(id):
 @sales_bp.route('/driver-payments')
 @login_required
 def driver_payments():
-    """Haydovchi to'lovlari ro'yxati - smena yopilganda yangilanadi"""
-    from datetime import date
-    
-    # Oxirgi yopilgan smenani topish (smena yopilganda yangilanadi)
-    last_closed_smena = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.yopilgan_vaqt.desc()).first()
-    
-    if last_closed_smena:
-        # Smena yopilganidan keyingi to'lovlarni ko'rsatish
-        filter_date = last_closed_smena.sana
-        current_smena = last_closed_smena.smena + 1
-    else:
-        # Hali smena yopilmagan
-        filter_date = date.today()
-        current_smena = 1
-    
-    # Sana filter (URL dan)
-    url_date = request.args.get('date')
-    if url_date:
-        filter_date = datetime.strptime(url_date, '%Y-%m-%d').date()
+    """Haydovchi to'lovlari ro'yxati"""
+    # Sana filter
+    filter_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+    filter_date = datetime.strptime(filter_date, '%Y-%m-%d').date()
     
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
@@ -573,10 +562,9 @@ def driver_payments():
     # Status filter (default: tolandi)
     status = request.args.get('status', 'tolandi')
     
-    # Query - smena bo'yicha
+    # Query
     query = DriverPayment.query.filter(
-        db.func.date(DriverPayment.created_at) == filter_date,
-        DriverPayment.smena >= current_smena
+        db.func.date(DriverPayment.created_at) == filter_date
     )
     
     if driver_id:
