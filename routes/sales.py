@@ -173,12 +173,28 @@ def pay_debt(sale_id):
             )
             db.session.add(new_cash)
         
-        # Haydovchi to'lovini yangilash (har qanday holatda)
+        # Haydovchi to'lovini yangilash yoki yangi yaratish
+        # Avvalgi to'lovni tekshirish
         driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
-        if driver_payment and driver_payment.status == 'kutilmoqda':
-            driver_payment.status = 'tolandi'
-            driver_payment.collected_at = uz_datetime()
-            driver_payment.summa = payment
+        
+        # Oxirgi smenani aniqlash
+        from datetime import date
+        today = date.today()
+        last_closed = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.yopilgan_vaqt.desc()).first()
+        current_smena = last_closed.smena + 1 if last_closed else 1
+        
+        if driver_payment:
+            # Agar avvalgi to'lov bo'lsa, yangi to'lov qatorini yaratish
+            new_driver_payment = DriverPayment(
+                sale_id=sale.id,
+                driver_id=driver_payment.driver_id,
+                mijoz_id=sale.mijoz_id,
+                summa=payment,
+                smena=current_smena,
+                status='tolandi',
+                collected_at=uz_datetime()
+            )
+            db.session.add(new_driver_payment)
         
         db.session.commit()
         
