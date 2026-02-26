@@ -276,6 +276,7 @@ def add_sale():
                 driver_id=current_user.employee_id,
                 mijoz_id=mijoz_id,
                 summa=qarz,
+                smena=current_smena,
                 status='kutilmoqda'
             )
             db.session.add(driver_payment)
