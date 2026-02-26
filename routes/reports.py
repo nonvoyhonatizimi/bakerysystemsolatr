@@ -441,7 +441,14 @@ def close_day():
     # Haydovchi qoldiqlarini tozalash (smena yopilganda 0 dan boshlanadi)
     DriverInventory.query.filter(DriverInventory.sana == today).delete()
     
+    # Haydovchi to'lovlarini tozalash (smena yopilganda 0 dan boshlanadi)
+    from models import DriverPayment
+    DriverPayment.query.filter(
+        db.func.date(DriverPayment.created_at) == today,
+        DriverPayment.smena < current_smena
+    ).delete()
+    
     db.session.commit()
     
-    flash('Smena yopildi! Bugungi sotuvlar va non qoldiqlari yangi hisobotdan boshlandi.', 'success')
+    flash('Smena yopildi! Bugungi sotuvlar, to\'lovlar va non qoldiqlari yangi hisobotdan boshlandi.', 'success')
     return redirect(url_for('reports.daily_sales'))
