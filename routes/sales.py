@@ -616,7 +616,6 @@ def driver_payments():
     return render_template('sales/driver_payments.html',
                          payments=payments,
                          drivers=drivers,
-                         filter_date=filter_date,
                          driver_id=driver_id,
                          status=status,
                          jami_kutilmoqda=jami_kutilmoqda,
