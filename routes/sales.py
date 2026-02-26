@@ -568,25 +568,14 @@ def delete_transfer(id):
 @sales_bp.route('/driver-payments')
 @login_required
 def driver_payments():
-    """Haydovchi to'lovlari ro'yxati - faqat smena yopilganda yangilanadi"""
+    """Haydovchi to'lovlari - faqat oldingi smenalar qarz to'lovlari"""
     from datetime import date
     
-    # Oxirgi yopilgan smenani topish (smena yopilganda yangilanadi)
+    # Oxirgi yopilgan smenani topish
     last_closed_smena = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.yopilgan_vaqt.desc()).first()
     
-    if last_closed_smena:
-        # Smena yopilganidan keyingi to'lovlarni ko'rsatish
-        filter_date = last_closed_smena.sana
-        current_smena = last_closed_smena.smena + 1
-    else:
-        # Hali smena yopilmagan - barcha to'lovlarni ko'rsatish
-        filter_date = date.today()
-        current_smena = 1
-    
-    # URL dan sana filter (ixtiyoriy)
-    url_date = request.args.get('date')
-    if url_date:
-        filter_date = datetime.strptime(url_date, '%Y-%m-%d').date()
+    # Bugungi sana
+    today = date.today()
     
     # Haydovchi filter
     driver_id = request.args.get('driver_id', '')
@@ -594,11 +583,20 @@ def driver_payments():
     # Status filter (default: tolandi)
     status = request.args.get('status', 'tolandi')
     
-    # Query - smena bo'yicha
-    query = DriverPayment.query.filter(
-        db.func.date(DriverPayment.created_at) == filter_date,
-        DriverPayment.smena >= current_smena
-    )
+    # Query - faqat oldingi smenalar to'lovlari (bugungi sotuvlardan TASHQARI)
+    # 1. Avvalgi kunlarning barcha to'lovlari
+    # 2. Bugun smena yopilgandan oldingi to'lovlar
+    if last_closed_smena:
+        # Smena yopilgan - shu smenadan oldingi to'lovlarni ko'rsatish
+        query = DriverPayment.query.filter(
+            db.func.date(DriverPayment.created_at) == last_closed_smena.sana,
+            DriverPayment.smena <= last_closed_smena.smena
+        )
+    else:
+        # Smena hali yopilmagan - faqat avvalgi kunlarning to'lovlari
+        query = DriverPayment.query.filter(
+            db.func.date(DriverPayment.created_at) < today
+        )
     
     if driver_id:
         query = query.filter(DriverPayment.driver_id == driver_id)
