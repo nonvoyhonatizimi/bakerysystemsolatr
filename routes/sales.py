@@ -583,11 +583,20 @@ def driver_payments():
     # Status filter (default: tolandi)
     status = request.args.get('status', 'tolandi')
     
-    # Query - faqat O'TGAN KUNLAR qarz to'lovlari (bugun emas!)
-    # Bugun 26-fevral bo'lsa, 25-fevral va undan oldingi kunlar ko'rsatiladi
-    query = DriverPayment.query.filter(
-        db.func.date(DriverPayment.created_at) < today
-    )
+    # Query - QARZ TO'LOVLARI (smena yopilgandan keyingi to'lovlar)
+    # Qoida: Non berilgan sana != Pul olingan sana
+    # Yani: Bugun non berildi, keyingi kun to'landi → Qarz to'lovlari
+    if last_closed_smena:
+        # Smena yopilgan - shu smenadan keyingi to'lovlarni ko'rsatish
+        # (Non berilgan sana < Pul olingan sana)
+        query = DriverPayment.query.filter(
+            DriverPayment.smena > last_closed_smena.smena,
+            DriverPayment.status == 'tolandi'
+        )
+    else:
+        # Smena hali yopilmagan - hech narsa ko'rsatilmaydi
+        # (Chunki barcha to'lovlar shu smenada - Bugungi sotuvlarda)
+        query = DriverPayment.query.filter(False)
     
     if driver_id:
         query = query.filter(DriverPayment.driver_id == driver_id)
