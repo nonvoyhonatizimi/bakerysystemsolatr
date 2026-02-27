@@ -173,7 +173,7 @@ def pay_debt(sale_id):
             )
             db.session.add(new_cash)
         
-        # Haydovchi to'lovini yangilash yoki yangi yaratish
+        # Haydovchi to'lovini saqlash (faqat smena yopilgandan keyin olingan to'lovlar uchun)
         # Avvalgi to'lovni tekshirish
         driver_payment = DriverPayment.query.filter_by(sale_id=sale.id).first()
         
@@ -183,8 +183,14 @@ def pay_debt(sale_id):
         last_closed = DayStatus.query.filter_by(status='yopiq').order_by(DayStatus.yopilgan_vaqt.desc()).first()
         current_smena = last_closed.smena + 1 if last_closed else 1
         
-        if driver_payment:
-            # Agar avvalgi to'lov bo'lsa, yangi to'lov qatorini yaratish
+        # Sale qaysi smenaga tegishli?
+        sale_smena = sale.smena if sale.smena else 1
+        
+        # Faqat agar to'lov BOSHQA SMENADA olingan bo'lsa saqlash
+        # (Shu smena da non berildi + Shunga smena da pul olindi = Bugungi sotuvlarda)
+        # (Smena A da non berildi + Smena B da pul olindi = Qarz to'lovlari)
+        if driver_payment and current_smena > sale_smena:
+            # Boshqa smenada olingan to'lov - Qarz to'lovlari ga
             new_driver_payment = DriverPayment(
                 sale_id=sale.id,
                 driver_id=driver_payment.driver_id,
@@ -195,6 +201,11 @@ def pay_debt(sale_id):
                 collected_at=uz_datetime()
             )
             db.session.add(new_driver_payment)
+        elif driver_payment and current_smena == sale_smena:
+            # Shu smenada olingan to'lov - faqat status ni yangilash
+            driver_payment.status = 'tolandi'
+            driver_payment.collected_at = uz_datetime()
+            driver_payment.summa = payment
         
         db.session.commit()
         
