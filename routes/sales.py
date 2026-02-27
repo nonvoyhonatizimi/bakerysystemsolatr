@@ -594,19 +594,18 @@ def driver_payments():
     # Status filter (default: tolandi)
     status = request.args.get('status', 'tolandi')
     
-    # Query - QARZ TO'LOVLARI (smena yopilgandan keyingi to'lovlar)
-    # Qoida: Non berilgan sana != Pul olingan sana
-    # Yani: Bugun non berildi, keyingi kun to'landi → Qarz to'lovlari
+    # Query - QARZ TO'LOVLARI (boshqa smenada olingan to'lovlar)
+    # Qoida: Non berilgan smena < Pul olingan smena
+    # Yani: Smena A da non berildi, Smena B da pul olindi → Qarz to'lovlari
     if last_closed_smena:
-        # Smena yopilgan - shu smenadan keyingi to'lovlarni ko'rsatish
-        # (Non berilgan sana < Pul olingan sana)
+        # Faqat sale.smena < payment.smena bo'lgan to'lovlarni ko'rsatish
+        # (Shu smenada non berildi + shu smenada pul olindi = Bugungi sotuvlarda)
         query = DriverPayment.query.filter(
-            DriverPayment.smena > last_closed_smena.smena,
+            DriverPayment.sale.has(Sale.smena < DriverPayment.smena),
             DriverPayment.status == 'tolandi'
         )
     else:
         # Smena hali yopilmagan - hech narsa ko'rsatilmaydi
-        # (Chunki barcha to'lovlar shu smenada - Bugungi sotuvlarda)
         query = DriverPayment.query.filter(False)
     
     if driver_id:
