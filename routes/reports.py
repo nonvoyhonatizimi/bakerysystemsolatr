@@ -320,11 +320,22 @@ def daily_transfers():
 @login_required
 def daily_sales():
     """Bugungi sotuvlar - haydovchi hisoboti"""
-    from datetime import date
+    from datetime import date, datetime, timedelta
+    
+    # Hozirgi vaqtni tekshirish (ertalabki 5 da avtomatik yangilanmasligi uchun)
+    now = datetime.now()
+    is_early_morning = (now.hour == 5 and now.minute < 30)
+    
     filter_date = date.today()
     
     # Oxirgi yopilgan smenani topish
-    last_closed_smena = DayStatus.query.filter_by(sana=filter_date, status='yopiq').order_by(DayStatus.smena.desc()).first()
+    # Ertalabki 5 da avtomatik yangilanishni oldini olish uchun
+    if is_early_morning:
+        # Ertalabki 5 da - kechagi smenadan boshlash
+        yesterday = filter_date - timedelta(days=1)
+        last_closed_smena = DayStatus.query.filter_by(sana=yesterday, status='yopiq').order_by(DayStatus.smena.desc()).first()
+    else:
+        last_closed_smena = DayStatus.query.filter_by(sana=filter_date, status='yopiq').order_by(DayStatus.smena.desc()).first()
     
     # Agar smena yopilgan bo'lsa, shu smenadan keyingi sotuvlarni olish
     if last_closed_smena:
